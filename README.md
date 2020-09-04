@@ -9,7 +9,6 @@ Improving the aesthetic quality of images is challenging and eager for the publi
 **The framework of UEGAN:**
 <img src="./figures/framework.png" width = "100%" height="100%" div align=center>
 
-![Achitecture](./figures/framework.png)
 
 ## Requirements and Installation
 We recommended the following dependencies.
