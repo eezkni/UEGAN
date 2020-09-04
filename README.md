@@ -28,7 +28,7 @@ If UEGAN is useful for your research, please cite our paper:
 @article{ni2020towards,
   title={Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network},
   author={Zhangkai Ni, Wenhan Yang, Shiqi Wang, Lin Ma, and Sam Kwong},
-  booktitle={ECCV},
+  booktitle={IEEE},
   year={2020}
 }
 ```
