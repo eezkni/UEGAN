@@ -14,7 +14,9 @@ Improving the aesthetic quality of images is challenging and eager for the publi
 We recommended the following dependencies.
 *  Python 3.6
 *  PyTorch 1.4.0
-*  TensorBoard
+*  tqdm 4.43.0
+*  munch 2.5.0
+*  torchvision 0.5.0
 
 
 ## Training
