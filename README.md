@@ -1,6 +1,6 @@
 # Introdcurion
 
-This website shares the codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network", TIP-2020.
+This website shares the codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network", IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. [Paper](https://ieeexplore.ieee.org/abstract/document/9204448)
 
 **Abstract:**
 
@@ -29,10 +29,13 @@ If UEGAN is useful for your research, please cite our paper:
 
 ```
 @article{ni2020towards,
-  title={Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network},
-  author={Zhangkai Ni, Wenhan Yang, Shiqi Wang, Lin Ma, and Sam Kwong},
-  booktitle={IEEE TIP},
-  year={2020}
+	title={Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network},
+	author={Zhangkai Ni, Wenhan Yang, Shiqi Wang, Lin Ma, Sam Kwong},
+	journal={IEEE Transactions on Image Processing},
+	volume={29},
+	pages={9140--9151},
+	year={2020},
+	publisher={IEEE}
 }
 ```
 
