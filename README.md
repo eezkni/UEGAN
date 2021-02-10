@@ -1,6 +1,15 @@
-# Introdcurion
+# Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network
 
-This website shares the codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network", IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. [Paper](https://ieeexplore.ieee.org/abstract/document/9204448)
+#### IEEE Transactions on Image Processing (T-IP)
+[Zhangkai Ni](https://eezkni.github.io/)<sup>1</sup>, [Wenhan Yang](https://flyywh.github.io/)<sup>1</sup>, [Shiqi Wang](https://www.cs.cityu.edu.hk/~shiqwang/)<sup>1</sup>, [Lin Ma](http://forestlinma.com/)<sup>2</sup>, [Sam Kwong](http://www6.cityu.edu.hk/stfprofile/cssamk.htm)<sup>1</sup>
+
+##### [[Paper-arXiv](https://arxiv.org/abs/2012.15020)] [[Paper-official](https://ieeexplore.ieee.org/document/9204448)] 
+
+<sup>1</sup>City University of Hong Kong <sup>2</sup>Meituan Group
+
+## Introdcurion
+
+This website shares the codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network", IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. 
 
 **Abstract:**
 
@@ -19,6 +28,42 @@ We recommended the following dependencies.
 *  torchvision 0.5.0
 
 
+## Installation
+```
+git clone https://github.com/eezkni/UEGAN --recursive
+cd UEGAN
+```
+
+## Preparing Data for the MIT-Adobe FiveK Dataset
+
+### Getting the MIT-Adobe FiveK Dataset
+ - Download the dataset from https://data.csail.mit.edu/graphics/fivek/. (~50GB, SHA1).
+ - Extract the data.
+ - Open `fivek.lrcat` with Lightroom. Just click "upgrade" if Lightroom asks you to upgrade.
+
+### Generating the Low-quality Images
+ - Import the FiveK dataset into Adobe Lightroom.
+ - In the `Collections` list (bottom left), select collection **`Inputs/InputAsShotZeroed`**.
+ - Export all images in the following settings:
+   - Select all images at the bottom or in the middle (select one and press `Ctrl-A`), right-click any of them and select `Export/Export...`. 
+   - Export Location: `Export to`=`Specific folder`, `Folder`=`Your folder for low-quality images`.
+   - File Settings: `Image Format`=`PNG`, `Color Space`=`sRGB`, `Bit Depth`=`8 bit/component`
+   - Image Sizing: `Resize to Fit`=`Short Edge`, select `Don't Enlarge`, Fill in `512 pixels`, `Resolution` doesn't matter to ignort it.
+   - Finally, click `Export`.
+
+### Generating the High-quality Images
+ - Import the FiveK dataset into Adobe Lightroom.
+ - In the `Collections` list (bottom left), select collection **`Experts/C`**.
+ - Export all images in the following settings:
+   - Select all images at the bottom or in the middle (select one and press `Ctrl-A`), right-click any of them and select `Export/Export...`. 
+   - Export Location: `Export to`=`Specific folder`, `Folder`=`Your folder for high-quality images`.
+   - File Settings: `Image Format`=`PNG`, `Color Space`=`sRGB`, `Bit Depth`=`8 bit/component`
+   - Image Sizing: `Resize to Fit`=`Short Edge`, select `Don't Enlarge`, Fill in `512 pixels`, `Resolution` doesn't matter to ignort it.
+   - Finally, click `Export`.
+
+You can follow the previous instructions to generate your own training images. Or, you can directly download our exported images [FiveK_dataset_nzk](https://drive.google.com/drive/folders/1Jv0_9CnYxh_2ReFaVrwG19O3F7xBtdZT?usp=sharing).
+
+
 ## Training
 The code will be available soon.
 
@@ -29,13 +74,13 @@ If UEGAN is useful for your research, please cite our paper:
 
 ```
 @article{ni2020towards,
-	title={Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network},
-	author={Zhangkai Ni, Wenhan Yang, Shiqi Wang, Lin Ma, Sam Kwong},
-	journal={IEEE Transactions on Image Processing},
-	volume={29},
-	pages={9140--9151},
-	year={2020},
-	publisher={IEEE}
+  title={Towards unsupervised deep image enhancement with generative adversarial network},
+  author={Ni, Zhangkai and Yang, Wenhan and Wang, Shiqi and Ma, Lin and Kwong, Sam},
+  journal={IEEE Transactions on Image Processing},
+  volume={29},
+  pages={9140--9151},
+  year={2020},
+  publisher={IEEE}
 }
 ```
 
