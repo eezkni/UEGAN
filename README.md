@@ -103,9 +103,9 @@ python main.py --mode train --version UEGAN-FiveK --use_tensorboard True \
 ```
 
 This script will create a folder named ```./results``` in which the resulting are saved. 
-- The PSNR test results will be saved to here: ```./results/psnr_val_results``` (including PSNR for each valiaded epoch and the summary)
-- The SSIM test results will be saved to here: ```./results/ssim_val_results``` (including SSIM for each valiaded epoch and the summary)
-- The NIMA test results will be saved to here: ```./results/nima_val_results``` (including NIMA for each valiaded epoch and the summary)
+- The PSNR results will be saved to here: ```./results/psnr_val_results``` (including PSNR for each valiaded epoch and the summary)
+- The SSIM results will be saved to here: ```./results/ssim_val_results``` (including SSIM for each valiaded epoch and the summary)
+- The NIMA results will be saved to here: ```./results/nima_val_results``` (including NIMA for each valiaded epoch and the summary)
 - The training logs will be saved to here: ```./results/UEGAN-FiveK/logs```
 - The models will be saved to here: ```./results/UEGAN-FiveK/models```
 - The intermediate results will be saved to here: ```./results/UEGAN-FiveK/samples```
@@ -119,7 +119,8 @@ The summary of PSNR test results will be save to ```./results/psnr_val_results/P
 
 To test UEGAN on FiveK, run the training script below.
 ```
-python main.py --mode test --version UEGAN-FiveK --pretrained_model xx (best epoch, e.g., 88) --is_test_nima True --is_test_psnr_ssim True
+python main.py --mode test --version UEGAN-FiveK --pretrained_model xx (best epoch, e.g., 88) \
+--is_test_nima True --is_test_psnr_ssim True
 
 ```
 
