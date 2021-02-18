@@ -32,7 +32,7 @@ We recommended the following dependencies.
 *  torchvision 0.5.0
 
 
-## Installation
+<!-- ## Installation -->
 ```
 git clone https://github.com/eezkni/UEGAN --recursive
 cd UEGAN
