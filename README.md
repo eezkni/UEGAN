@@ -71,28 +71,28 @@ You can follow the instructions below to generate your own training images. Or, 
 Prepare the training, testing, and validation data. The folder structure should be:
 ```
 data
-└──── fiveK
-		├──── train
-		|		├──── exp
-		|		|		├──── a1.png                  
-		|		|		└──── ......
-		|		└──── raw
-		|		 		├──── b1.png                  
-		|		 		└──── ......
-		├──── val
-		|		├──── label
-		|		|		├──── c1.png                  
-		|		|		└──── ......
-		|		└──── raw
-		|		 		├──── c1.png                  
-		|		 		└──── ......
-		└──── test
-		 		├──── label
-		 		|	 	├──── d1.png                  
-		 		|	 	└──── ......
-		 		└──── raw
-			  			├──── d1.png                  
-			  			└──── ......
+└─── fiveK
+	├─── train
+	|	├─── exp
+	|	|	├──── a1.png                  
+	|	|	└──── ......
+	|	└─── raw
+	|		├──── b1.png                  
+	|		└──── ......
+	├─── val
+	|	├─── label
+	|	|	├──── c1.png                  
+	|	|	└──── ......
+	|	└─── raw
+	|		├──── c1.png                  
+	|		└──── ......
+	└─── test
+		├─── label
+		| 	├──── d1.png                  
+		| 	└──── ......
+		└─── raw
+			├──── d1.png                  
+			└──── ......
 ```
 ```raw/```contains low-quality images, ```exp/``` contains unpaired high-quality images, and ```label/``` contains corresponding ground truth.
 
