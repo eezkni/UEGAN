@@ -117,7 +117,7 @@ To view training results and loss plots, run ```tensorboard --logdir=results/UEG
 
 The summary of PSNR test results will be save to ```./results/psnr_val_results/PSNR_total_results_epoch_avgpsnr.csv```. Find the best epoch in the last line of ```PSNR_total_results_epoch_avgpsnr.csv```.
 
-To test UEGAN on FiveK, run the training script below.
+To test UEGAN on FiveK, run the test script below.
 ```
 python main.py --mode test --version UEGAN-FiveK --pretrained_model xx (best epoch, e.g., 88) \
 --is_test_nima True --is_test_psnr_ssim True
