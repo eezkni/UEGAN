@@ -67,9 +67,9 @@ def get_config():
     parser.add_argument('--test_result_path', type=str, default='test')
 
     # step size
-    parser.add_argument('--log_step', type=int, default=20)
+    parser.add_argument('--log_step', type=int, default=100)
     parser.add_argument('--info_step', type=int, default=100)
-    parser.add_argument('--sample_step', type=int, default=50)
+    parser.add_argument('--sample_step', type=int, default=100)
     parser.add_argument('--model_save_epoch', type=int, default=1) 
 
     # Misc    
