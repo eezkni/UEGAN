@@ -149,23 +149,15 @@ class Trainer(object):
     def logging(self, step):
         self.loss = {}
         self.images = {}
-        if self.args.adv_loss_type in ['hinge', 'ls','rahinge', 'rals']:
-            self.loss['D/Total'] = self.d_loss
-        else:
-            raise NotImplementedError("Adversarial loss [{}] is not found".format(self.args.adv_loss_type))
-
+        self.loss['D/Total'] = self.d_loss
         self.loss['G/Total'] = self.g_loss
         self.loss['G/adv_loss'] = self.g_adv_loss
-        
         self.loss['G/percep_loss'] = self.g_percep_loss
-        
         self.loss['G/idt_loss'] = self.g_idt_loss
-        self.images['Train_realExpIdt/realExp_realExpIdt'] = torch.cat([denorm(self.real_exp.cpu()), denorm(self.real_exp_idt.detach().cpu())], 3)
-    
-        self.images['Train_compare/realRaw_fakeExp_realExp'] = torch.cat([denorm(self.real_raw.cpu()), denorm(self.fake_exp.detach().cpu()), denorm(self.real_exp.cpu())], 3)
-        
-        self.images['Train_fakeExp/fakeExp'] = denorm(self.fake_exp.detach().cpu())
 
+        self.images['Train_realExpIdt/realExp_realExpIdt'] = torch.cat([denorm(self.real_exp.cpu()), denorm(self.real_exp_idt.detach().cpu())], 3)
+        self.images['Train_compare/realRaw_fakeExp_realExp'] = torch.cat([denorm(self.real_raw.cpu()), denorm(self.fake_exp.detach().cpu()), denorm(self.real_exp.cpu())], 3)
+        self.images['Train_fakeExp/fakeExp'] = denorm(self.fake_exp.detach().cpu())
         self.images['Train_fakeExpStore/fakeExpStore'] = denorm(self.fake_exp_store.detach().cpu())
 
         if (step+1) % self.args.log_step == 0:            
