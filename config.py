@@ -31,7 +31,7 @@ def get_config():
     parser.add_argument('--pretrained_model', type=float, default=0.0)
     parser.add_argument('--total_epochs', type=int, default=100, help='total epochs to update the generator')
     parser.add_argument('--train_batch_size', type=int, default=10, help='mini batch size')
-    parser.add_argument('--val_batch_size', type=int, default=4, help='mini batch size')
+    parser.add_argument('--val_batch_size', type=int, default=1, help='mini batch size')
     parser.add_argument('--num_workers', type=int, default=8, help='subprocesses to use for data loading')
     parser.add_argument('--seed', type=int, default=1990, help='Seed for random number generator')
     parser.add_argument('--g_lr', type=float, default=1e-4, help='learning rate for G')
