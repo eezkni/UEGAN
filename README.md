@@ -67,9 +67,7 @@ You can follow the instructions below to generate your own training images. Or, 
 
 
 ## Testing
-Having trained your models or the [pre-trained model on MIT-Adobe FiveK Dataset](https://drive.google.com/drive/folders/1Jv0_9CnYxh_2ReFaVrwG19O3F7xBtdZT?usp=sharing) (put into ```./results/UEGAN-FiveK/models/```),
-
-To test pre-trained UEGAN on FiveK, run the test script below.
+Having trained your models or the [pre-trained model on MIT-Adobe FiveK Dataset](https://drive.google.com/drive/folders/1Jv0_9CnYxh_2ReFaVrwG19O3F7xBtdZT?usp=sharing) (put into ```./results/UEGAN-FiveK/models/```), to test the pre-trained UEGAN on FiveK, run the test script below.
 ```
 python main.py --mode test --version UEGAN-FiveK --pretrained_model 92 \
 --is_test_nima True --is_test_psnr_ssim True
