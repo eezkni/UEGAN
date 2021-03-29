@@ -95,11 +95,11 @@ class Tester(object):
             
             if self.args.is_test_psnr_ssim:
                 self.psnr_save_path = './results/psnr_test_results/' 
-                curr_psnr = calc_psnr(test_save_path, self.args.test_gt_dir, self.psnr_save_path, self.args.pretrained_model)
+                curr_psnr = calc_psnr(test_save_path, self.args.test_label_dir, self.psnr_save_path, self.args.pretrained_model)
                 print("====== Avg. PSNR: {:>.4f} dB ======".format(curr_psnr))
 
                 self.ssim_save_path = './results/ssim_test_results/' 
-                curr_ssim = calc_ssim(test_save_path, self.args.test_gt_dir, self.ssim_save_path, self.args.pretrained_model)
+                curr_ssim = calc_ssim(test_save_path, self.args.test_label_dir, self.ssim_save_path, self.args.pretrained_model)
                 print("====== Avg. SSIM: {:>.4f}  ======".format(curr_ssim))
 
 
