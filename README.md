@@ -66,6 +66,16 @@ You can follow the instructions below to generate your own training images. Or, 
    - Finally, click `Export`.
 
 
+## Testing
+Having trained your models or the [pre-trained model on MIT-Adobe FiveK Dataset](https://drive.google.com/drive/folders/1Jv0_9CnYxh_2ReFaVrwG19O3F7xBtdZT?usp=sharing) (put into ```./results/UEGAN-FiveK/models/```),
+
+To test pre-trained UEGAN on FiveK, run the test script below.
+```
+python main.py --mode test --version UEGAN-FiveK --pretrained_model 92 \
+--is_test_nima True --is_test_psnr_ssim True
+
+```
+
 ## Training
 Prepare the training, testing, and validation data. The folder structure should be:
 ```
@@ -116,12 +126,7 @@ To view training results and loss plots, run ```tensorboard --logdir=results/UEG
 
 The summary of PSNR test results will be save to ```./results/psnr_val_results/PSNR_total_results_epoch_avgpsnr.csv```. Find the best epoch in the last line of ```PSNR_total_results_epoch_avgpsnr.csv```.
 
-To test UEGAN on FiveK, run the test script below.
-```
-python main.py --mode test --version UEGAN-FiveK --pretrained_model xx (best epoch, e.g., 88) \
---is_test_nima True --is_test_psnr_ssim True
 
-```
 
 ## Citation
 
