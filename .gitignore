@@ -1,0 +1,124 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+.DS_STORE
+
+# C extensions
+
+
+# Distribution / packaging
+.Python
+env/
+junit
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+runs/
+*.egg-info/
+.installed.cfg
+*.egg
+*.model
+*.vocab
+**/.mypy_cache/**
+*.pt
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+*.msgpack
+resources/
+sandbox.py
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# IPython Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# dotenv
+.env
+
+# virtualenv
+venv/
+ENV/
+
+# Spyder project settings
+.spyderproject
+
+# nohup
+nohup.out
+
+# Rope project settings
+.ropeproject
+
+# Visual Studio project settings
+/agi.sln
+/agi.pyproj
+/.vs/agi/v14/.suo
+/agi.pyproj.user
+/agi.VC.db
+/.vs/config/applicationhost.config
+**/.vscode/**
+
+# Vortex specific
+logs/
+log.txt
+/projects/vortex/Scratch/scratch.py
+
+# vim temp file
+*.py~
+
+# Scope
+/lib/scope/**/.vs/
+/lib/scope/**/bin/
+/lib/scope/**/obj/
+/lib/scope/**/*.scopeproj.user
