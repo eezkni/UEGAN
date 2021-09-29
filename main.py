@@ -16,7 +16,7 @@ def main(args):
     torch.backends.cudnn.benchmark = True
 
     setup_seed(args.seed)
-    
+
     # create directories if not exist.
     create_folder(args.save_root_dir, args.version, args.model_save_path)
     create_folder(args.save_root_dir, args.version, args.sample_path)
@@ -33,6 +33,7 @@ def main(args):
                                             num_workers=args.num_workers,
                                             drop_last=args.drop_last),
                         val=get_test_loader(root=args.val_img_dir,
+                                            label_root=args.val_label_dir,
                                             batch_size=args.val_batch_size,
                                             shuffle=True,
                                             num_workers=args.num_workers))
@@ -53,8 +54,8 @@ def main(args):
 if __name__ == '__main__':
 
     args = get_config()
-    
+
     # if args.is_print_network:
     #     print(args)
-        
+
     main(args)
