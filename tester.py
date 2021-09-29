@@ -21,7 +21,7 @@ class Tester(object):
 
         # data loader
         self.loaders = loaders
-        
+
         # Model configuration.
         self.args = args
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -37,7 +37,7 @@ class Tester(object):
         if self.args.use_tensorboard:
             self.build_tensorboard()
 
-        
+
     def test(self):
         """ Test UEGAN ."""
         self.load_pretrained_model(self.args.pretrained_model)
@@ -68,10 +68,11 @@ class Tester(object):
 
                 for i in range(0, denorm(test_real_raw.data).size(0)):
                     save_imgs = denorm(test_fake_exp.data)[i:i + 1,:,:,:]
-                    save_image(save_imgs, os.path.join(test_save_path, '{:s}_{:0>3.2f}_testFakeExp.png'.format(test_name[i], self.args.pretrained_model)))
-
+                    img_filename = os.path.basename(test_name[i]).split('.')[0]
+                    save_path = os.path.join(test_save_path, '{:s}_{:0>3.2f}_testFakeExp.png'.format(img_filename, self.args.pretrained_model))
+                    save_image(save_imgs, save_path)
                     save_imgs_compare = torch.cat([denorm(test_real_raw.data)[i:i + 1,:,:,:], denorm(test_fake_exp.data)[i:i + 1,:,:,:]], 3)
-                    save_image(save_imgs_compare, os.path.join(test_compare_save_path, '{:s}_{:0>3.2f}_testRealRaw_testFakeExp.png'.format(test_name[i], self.args.pretrained_model)))
+                    save_image(save_imgs_compare, os.path.join(test_compare_save_path, '{:s}_{:0>3.2f}_testRealRaw_testFakeExp.png'.format(img_filename, self.args.pretrained_model)))
 
                 elapsed = time.time() - start_time
                 elapsed = str(datetime.timedelta(seconds=elapsed))
@@ -92,13 +93,13 @@ class Tester(object):
                 self.nima_result_save_path = './results/nima_test_results/'
                 curr_nima = calc_nima(test_save_path, self.nima_result_save_path,  self.args.pretrained_model)
                 print("====== Avg. NIMA: {:>.4f} ======".format(curr_nima))
-            
+
             if self.args.is_test_psnr_ssim:
-                self.psnr_save_path = './results/psnr_test_results/' 
+                self.psnr_save_path = './results/psnr_test_results/'
                 curr_psnr = calc_psnr(test_save_path, self.args.test_label_dir, self.psnr_save_path, self.args.pretrained_model)
                 print("====== Avg. PSNR: {:>.4f} dB ======".format(curr_psnr))
 
-                self.ssim_save_path = './results/ssim_test_results/' 
+                self.ssim_save_path = './results/ssim_test_results/'
                 curr_ssim = calc_ssim(test_save_path, self.args.test_label_dir, self.ssim_save_path, self.args.pretrained_model)
                 print("====== Avg. SSIM: {:>.4f}  ======".format(curr_ssim))
 
@@ -114,7 +115,7 @@ class Tester(object):
             self.G = nn.DataParallel(self.G, self.args.gpu_ids)
             self.D = nn.DataParallel(self.D, self.args.gpu_ids)
         print("=== Models have been created ===")
-        
+
         # print network
         if self.args.is_print_network:
             self.print_network(self.G, 'Generator')
