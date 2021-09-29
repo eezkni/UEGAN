@@ -8,7 +8,7 @@ import glob
 import datetime
 
 
-def calc_ssim(folder_Gen, folder_GT, result_save_path, epoch):
+def calc_ssim(gen_imgs, label_imgs, result_save_path, epoch):
 
     if not os.path.exists(result_save_path):
         os.makedirs(result_save_path)
@@ -24,22 +24,18 @@ def calc_ssim(folder_Gen, folder_GT, result_save_path, epoch):
     crop_border = 4
     test_Y = False  # True: test Y channel only; False: test RGB channels
 
-    img_list = sorted(glob.glob(folder_Gen + '/*'))
-
     if test_Y:
         print('Testing Y channel.')
     else:
         print('Testing RGB channels.')
 
     starttime = datetime.datetime.now()
-    
-    for i, img_path in enumerate(img_list):
-        im_Gen = cv2.imread(img_path) / 255.
 
-        base_name = os.path.splitext(os.path.basename(img_path))[0]
-        imgName, _, _ = base_name.rsplit('_', 2)
-        GT_imgName = imgName + '.png'
-        im_GT = cv2.imread(os.path.join(folder_GT, GT_imgName)) / 255.
+    for i in range(len(gen_imgs)):
+        im_Gen, im_GT = gen_imgs[i], label_imgs[i]
+
+        im_Gen = np.asarray(im_Gen) / 255.
+        im_GT = np.asarray(im_GT) / 255.
 
         if test_Y and im_GT.shape[2] == 3:  # evaluate on Y channel in YCbCr color space
             im_GT_in = bgr2ycbcr(im_GT)
@@ -61,10 +57,6 @@ def calc_ssim(folder_Gen, folder_GT, result_save_path, epoch):
         # calculate PSNR and SSIM
         # SSIM = calculate_ssim(cropped_GT * 255, cropped_Gen * 255)
         SSIM = ssim_skimage(cropped_GT * 255, cropped_Gen * 255, multichannel=True, data_range=255)
-
-        # print("=== SSIM is {:.4f} of {:>3d}-th img ===".format(SSIM, i))
-
-        epochfile.write(GT_imgName + ',' + str(round(SSIM, 6)) + '\n')
 
         total_ssim += SSIM
         if i % 50 == 0:

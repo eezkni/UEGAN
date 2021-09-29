@@ -8,7 +8,7 @@ import glob
 import datetime
 
 
-def calc_psnr(folder_Gen, folder_GT, result_save_path, epoch):
+def calc_psnr(gen_imgs, label_imgs, result_save_path, epoch):
 
     if not os.path.exists(result_save_path):
         os.makedirs(result_save_path)
@@ -24,8 +24,6 @@ def calc_psnr(folder_Gen, folder_GT, result_save_path, epoch):
     crop_border = 4
     test_Y = False  # True: test Y channel only; False: test RGB channels
 
-    img_list = sorted(glob.glob(folder_Gen + '/*'))
-
     if test_Y:
         print('Testing Y channel.')
     else:
@@ -33,16 +31,11 @@ def calc_psnr(folder_Gen, folder_GT, result_save_path, epoch):
 
     starttime = datetime.datetime.now()
 
-    for i, img_path in enumerate(img_list):
-        im_Gen = cv2.imread(img_path) / 255.
+    for i in range(len(gen_imgs)):
+        im_Gen, im_GT = gen_imgs[i], label_imgs[i]
 
-        base_name = os.path.splitext(os.path.basename(img_path))[0]
-        imgName, _, _ = base_name.rsplit('_', 2)
-        # print(base_name)
-        # print(imgName)
-        GT_imgName = imgName + '.png'
-        # print(GT_imgName)
-        im_GT = cv2.imread(os.path.join(folder_GT, GT_imgName)) / 255.
+        im_Gen = np.asarray(im_Gen) / 255.
+        im_GT = np.asarray(im_GT) / 255.
 
         if test_Y and im_GT.shape[2] == 3:  # evaluate on Y channel in YCbCr color space
             im_GT_in = bgr2ycbcr(im_GT)
@@ -63,10 +56,6 @@ def calc_psnr(folder_Gen, folder_GT, result_save_path, epoch):
 
         # calculate PSNR and SSIM
         PSNR = calculate_psnr(cropped_GT * 255, cropped_Gen * 255)
-
-        # print("=== PSNR is {:.4f} of {:>3d}-th img ===".format(PSNR, i))
-
-        epochfile.write(GT_imgName + ',' + str(round(PSNR, 6)) + '\n')
 
         total_psnr += PSNR
         if i % 50 == 0:

@@ -57,12 +57,16 @@ class Tester(object):
 
         self.G.eval()
 
+        test_gen_imgs = []
+        test_label_imgs = []
+
         pbar = tqdm(total=(test_total_steps - test_start), desc='Test epoches', position=test_start)
         pbar.write("============================== Start tesing ==============================")
         with torch.no_grad():
             for test_step in range(test_start, test_total_steps):
                 input = next(self.fetcher_test)
                 test_real_raw, test_name = input.img_raw, input.img_name
+                test_real_raw, test_real_label, test_name = input.img_raw, input.img_exp, input.img_name
 
                 test_fake_exp = self.G(test_real_raw)
 
@@ -70,6 +74,14 @@ class Tester(object):
                     save_imgs = denorm(test_fake_exp.data)[i:i + 1,:,:,:]
                     img_filename = os.path.basename(test_name[i]).split('.')[0]
                     save_path = os.path.join(test_save_path, '{:s}_{:0>3.2f}_testFakeExp.png'.format(img_filename, self.args.pretrained_model))
+
+                    fake_img_rgb = tensor_to_img(save_imgs.detach())
+                    test_gen_imgs.append(fake_img_rgb)
+
+                    val_real_label = denorm(val_real_label.data)[i:i + 1,:,:,:]
+                    real_label_rgb = tensor_to_img(val_real_label.detach())
+                    test_label_imgs.append(real_label_rgb)
+
                     save_image(save_imgs, save_path)
                     save_imgs_compare = torch.cat([denorm(test_real_raw.data)[i:i + 1,:,:,:], denorm(test_fake_exp.data)[i:i + 1,:,:,:]], 3)
                     save_image(save_imgs_compare, os.path.join(test_compare_save_path, '{:s}_{:0>3.2f}_testRealRaw_testFakeExp.png'.format(img_filename, self.args.pretrained_model)))
@@ -96,11 +108,11 @@ class Tester(object):
 
             if self.args.is_test_psnr_ssim:
                 self.psnr_save_path = './results/psnr_test_results/'
-                curr_psnr = calc_psnr(test_save_path, self.args.test_label_dir, self.psnr_save_path, self.args.pretrained_model)
+                curr_psnr = calc_psnr(test_gen_imgs, test_label_imgs, self.psnr_save_path, self.args.pretrained_model)
                 print("====== Avg. PSNR: {:>.4f} dB ======".format(curr_psnr))
 
                 self.ssim_save_path = './results/ssim_test_results/'
-                curr_ssim = calc_ssim(test_save_path, self.args.test_label_dir, self.ssim_save_path, self.args.pretrained_model)
+                curr_ssim = calc_ssim(test_gen_imgs, test_label_imgs, self.ssim_save_path, self.args.pretrained_model)
                 print("====== Avg. SSIM: {:>.4f}  ======".format(curr_ssim))
 
 
