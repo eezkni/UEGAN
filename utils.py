@@ -6,13 +6,15 @@ import torch.nn as nn
 import math
 import numbers
 import torch.nn.functional as F
+from torchvision.utils import make_grid
+from PIL import Image
 import numpy as np
 import csv
 import random
 import tensorflow as tf
 from torch.utils.tensorboard import SummaryWriter
 import torchvision
-import scipy.misc 
+import scipy.misc
 from torch.optim.optimizer import Optimizer, required
 try:
     from StringIO import StringIO  # Python 2.7
@@ -60,7 +62,7 @@ class Logger(object):
         """Add scalar summary."""
         summary = tf.compat.v1.Summary(value=[tf.compat.v1.Summary.Value(tag=tag, simple_value=value)])
         self.writer.add_summary(summary, step)
-    
+
     def images_summary(self, tag, images, step):
         """Log a list of images."""
         img_summaries = []
@@ -82,7 +84,7 @@ class Logger(object):
         # Create and write Summary
         summary = tf.compat.v1.Summary(value=img_summaries)
         self.writer.add_summary(summary, step)
-    
+
     def histo_summary(self, tag, values, step, bins=1000):
         """Log a histogram of the tensor of values."""
 
@@ -128,7 +130,7 @@ def var2numpy(x):
 def denorm(x):
     out = (x + 1) / 2.0
     return out.clamp_(0, 1)
-    
+
 
 def str2bool(v):
     return v.lower() in ('true')
@@ -153,7 +155,7 @@ def setup_seed(seed):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.enabled = True
-    
+
 
 class GaussianSmoothing(nn.Module):
     """
@@ -244,4 +246,11 @@ class GaussianNoise(nn.Module):
         noise.normal_(0, self.stddev)
 
         return x + noise
-    
+
+
+def tensor_to_img(tensor):
+    grid = make_grid(tensor)
+    # Add 0.5 after unnormalizing to [0, 255] to round to nearest integer
+    ndarr = grid.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy()
+    im = Image.fromarray(ndarr)
+    return im
