@@ -6,7 +6,7 @@ from utils import str2bool
 
 def get_config():
     parser = argparse.ArgumentParser()
-    
+
     # Model configuration.
     parser.add_argument('--mode', type=str, default='train', help='train|test')
     parser.add_argument('--adv_loss_type', type=str, default='rahinge', help='adversarial Loss: ls|original|hinge|rahinge|rals')
@@ -26,7 +26,7 @@ def get_config():
     parser.add_argument('--d_act_fun', type=str, default='LeakyReLU', help='LeakyReLU|ReLU|Swish|SELU|none')
     parser.add_argument('--g_norm_fun', type=str, default='none', help='BatchNorm|InstanceNorm|none')
     parser.add_argument('--d_norm_fun', type=str, default='none', help='BatchNorm|InstanceNorm|none')
-    
+
     # Training configuration.
     parser.add_argument('--pretrained_model', type=float, default=0.0)
     parser.add_argument('--total_epochs', type=int, default=100, help='total epochs to update the generator')
@@ -56,9 +56,11 @@ def get_config():
     # Directories.
     parser.add_argument('--train_img_dir', type=str, default='./data/fivek/train')
     parser.add_argument('--val_img_dir', type=str, default='./data/fivek/val')
+    parser.add_argument('--qual_img_dir', type=str)
     parser.add_argument('--test_img_dir', type=str, default='./data/fivek/test')
     parser.add_argument('--save_root_dir', type=str, default='./results')
     parser.add_argument('--val_label_dir', type=str, default='./data/fivek/val/label/')
+    parser.add_argument('--qual_label_dir', type=str)
     parser.add_argument('--test_label_dir', type=str, default='./data/fivek/test/label/')
     parser.add_argument('--model_save_path', type=str, default='models')
     parser.add_argument('--sample_path', type=str, default='samples')
@@ -70,11 +72,11 @@ def get_config():
     parser.add_argument('--log_step', type=int, default=100)
     parser.add_argument('--info_step', type=int, default=100)
     parser.add_argument('--sample_step', type=int, default=100)
-    parser.add_argument('--model_save_epoch', type=int, default=1) 
+    parser.add_argument('--model_save_epoch', type=int, default=1)
 
-    # Misc    
+    # Misc
     parser.add_argument('--parallel', type=str2bool, default=False, help='use multi-GPU for training')
-    parser.add_argument('--gpu_ids', default=[0, 1, 2, 3])
+    parser.add_argument('--gpu_ids', nargs="*", default=[0, 1, 2, 3], type=int)
     parser.add_argument('--use_tensorboard', type=str, default=False)
     parser.add_argument('--is_print_network', type=str2bool, default=True)
     parser.add_argument('--is_test_nima', type=str2bool, default=True)

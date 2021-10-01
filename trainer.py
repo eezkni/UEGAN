@@ -40,6 +40,7 @@ class Trainer(object):
         """ Train UEGAN ."""
         self.fetcher = InputFetcher(self.loaders.ref)
         self.fetcher_val = InputFetcher(self.loaders.val)
+        self.fetcher_quality = InputFetcher(self.loaders.qual_set)
 
         self.train_steps_per_epoch = len(self.loaders.ref)
         self.model_save_step = int(self.args.model_save_epoch * self.train_steps_per_epoch)
@@ -125,7 +126,8 @@ class Trainer(object):
             self.logging(step)
 
             ### validation
-            self.model_validation(step)
+            self.model_validation(step, self.fetcher_val, len(self.loaders.val))
+            self.model_validation(step, self.fetcher_quality, len(self.loaders.qual_set), save_imgs=True, cal_metrics=False)
 
             ### learning rate update
             if step % self.train_steps_per_epoch == 0:
@@ -210,53 +212,60 @@ class Trainer(object):
             pbar.write("======= Save model checkpoints into {} ======".format(self.model_save_path))
 
 
-    def model_validation(self, step):
+    def model_validation(self, step, data_fetcher, data_size, save_imgs=False, cal_metrics=True):
         if (step + 1) >= self.val_start_steps:
             if (step + 1) % self.val_each_steps == 0:
                 val = {}
                 current_epoch = (step + 1) / self.train_steps_per_epoch
-                val_save_path = self.val_result_path + '/' + 'validation_' + str(current_epoch)
-                val_compare_save_path = self.val_result_path + '/' + 'validation_compare_' + str(current_epoch)
                 val_start = 0
-                val_total_steps = len(self.loaders.val)
+                val_total_steps = data_size
 
-                if not os.path.exists(val_save_path):
-                    os.makedirs(val_save_path)
-                if not os.path.exists(val_compare_save_path):
-                    os.makedirs(val_compare_save_path)
 
                 self.G.eval()
 
                 pbar = tqdm(total=(val_total_steps - val_start), desc='Validation epoches', position=val_start)
                 pbar.write("============================== Start validation ==============================")
+
+                if save_imgs:
+                    print("Saving imgs")
+
                 val_gen_imgs = []
                 val_label_imgs = []
 
                 with torch.no_grad():
                     for val_step in range(val_start, val_total_steps):
 
-                        input = next(self.fetcher_val)
+                        input = next(data_fetcher)
                         val_real_raw, val_real_label, val_name = input.img_raw, input.img_exp, input.img_name
 
                         val_fake_exp = self.G(val_real_raw)
 
                         for i in range(0, denorm(val_real_raw.data).size(0)):
-                            save_imgs = denorm(val_fake_exp.data)[i:i + 1,:,:,:]
-                            save_image(save_imgs, os.path.join(val_save_path, '{:s}_{:0>3.2f}_valFakeExp.png'.format(val_name[i], current_epoch)))
+                            fake_save_imgs = denorm(val_fake_exp.data)[i:i + 1,:,:,:]
 
-                            fake_img_rgb = tensor_to_img(save_imgs.detach())
+                            if save_imgs:
+                                val_save_path = self.val_result_path + '/' + 'out_imgs/' + str(val_name[0])
+                                #val_compare_save_path = self.val_result_path + '/' + 'out_' + str(current_epoch)
+
+                                if not os.path.exists(val_save_path):
+                                    os.makedirs(val_save_path)
+
+                                file_save_path = os.path.join(val_save_path, '{:s}_{:0>3.2f}_valFakeExp.png'.format(val_name[i], current_epoch))
+                                save_image(fake_save_imgs, file_save_path)
+
+                            fake_img_rgb = tensor_to_img(fake_save_imgs.detach())
                             val_gen_imgs.append(fake_img_rgb)
                             val_real_label = denorm(val_real_label.data)[i:i + 1,:,:,:]
                             real_label_rgb = tensor_to_img(val_real_label.detach())
                             val_label_imgs.append(real_label_rgb)
 
-                            save_imgs_compare = torch.cat([denorm(val_real_raw.data)[i:i + 1,:,:,:], denorm(val_fake_exp.data)[i:i + 1,:,:,:]], 3)
-                            save_image(save_imgs_compare, os.path.join(val_compare_save_path, '{:s}_{:0>3.2f}_valRealRaw_valFakeExp.png'.format(val_name[i], current_epoch)))
+                            #save_imgs_compare = torch.cat([denorm(val_real_raw.data)[i:i + 1,:,:,:], denorm(val_fake_exp.data)[i:i + 1,:,:,:]], 3)
+                            #save_image(save_imgs_compare, os.path.join(val_compare_save_path, '{:s}_{:0>3.2f}_valRealRaw_valFakeExp.png'.format(val_name[i], current_epoch)))
 
                         elapsed = time.time() - self.start_time
                         elapsed = str(datetime.timedelta(seconds=elapsed))
                         if val_step % self.args.info_step == 0:
-                            pbar.write("=== Elapse:{}, Save {:>3d}-th val_fake_exp images into {} ===".format(elapsed, val_step, val_save_path))
+                            pbar.write("=== Elapse:{}, Save {:>3d}-th val_fake_exp images ===".format(elapsed, val_step))
 
                         val['val/valFakeExp'] = denorm(val_fake_exp.detach().cpu())
 
@@ -269,28 +278,29 @@ class Trainer(object):
                                 self.logger.images_summary(tag, images, val_step + 1)
 
                     pbar.close()
-                    if self.args.is_test_nima:
-                        self.nima_result_save_path = './results/nima_val_results/'
-                        curr_nima = calc_nima(val_save_path, self.nima_result_save_path,  current_epoch)
-                        if self.best_nima < curr_nima:
-                            self.best_nima = curr_nima
-                            self.best_nima_epoch = current_epoch
-                        print("====== Avg. NIMA: {:>.4f} ======".format(curr_nima))
+                    if cal_metrics:
+                        if self.args.is_test_nima:
+                            self.nima_result_save_path = './results/nima_val_results/'
+                            curr_nima = calc_nima(val_save_path, self.nima_result_save_path,  current_epoch)
+                            if self.best_nima < curr_nima:
+                                self.best_nima = curr_nima
+                                self.best_nima_epoch = current_epoch
+                            print("====== Avg. NIMA: {:>.4f} ======".format(curr_nima))
 
-                    if self.args.is_test_psnr_ssim:
-                        self.psnr_save_path = './results/psnr_val_results/'
-                        curr_psnr = calc_psnr(val_gen_imgs, val_label_imgs, self.psnr_save_path, current_epoch)
-                        if self.best_psnr < curr_psnr:
-                            self.best_psnr = curr_psnr
-                            self.best_psnr_epoch = current_epoch
-                        print("====== Avg. PSNR: {:>.4f} dB ======".format(curr_psnr))
+                        if self.args.is_test_psnr_ssim:
+                            self.psnr_save_path = './results/psnr_val_results/'
+                            curr_psnr = calc_psnr(val_gen_imgs, val_label_imgs, self.psnr_save_path, current_epoch)
+                            if self.best_psnr < curr_psnr:
+                                self.best_psnr = curr_psnr
+                                self.best_psnr_epoch = current_epoch
+                            print("====== Avg. PSNR: {:>.4f} dB ======".format(curr_psnr))
 
-                        self.ssim_save_path = './results/ssim_val_results/'
-                        curr_ssim = calc_ssim(val_gen_imgs, val_label_imgs, self.ssim_save_path, current_epoch)
-                        if self.best_ssim < curr_ssim:
-                            self.best_ssim = curr_ssim
-                            self.best_ssim_epoch = current_epoch
-                        print("====== Avg. SSIM: {:>.4f}  ======".format(curr_ssim))
+                            self.ssim_save_path = './results/ssim_val_results/'
+                            curr_ssim = calc_ssim(val_gen_imgs, val_label_imgs, self.ssim_save_path, current_epoch)
+                            if self.best_ssim < curr_ssim:
+                                self.best_ssim = curr_ssim
+                                self.best_ssim_epoch = current_epoch
+                            print("====== Avg. SSIM: {:>.4f}  ======".format(curr_ssim))
                 torch.cuda.empty_cache()
                 time.sleep(2)
 

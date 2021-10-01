@@ -36,7 +36,13 @@ def main(args):
                                             label_root=args.val_label_dir,
                                             batch_size=args.val_batch_size,
                                             shuffle=True,
-                                            num_workers=args.num_workers))
+                                            num_workers=args.num_workers),
+                        qual_set=get_test_loader(root=args.qual_img_dir,
+                                                label_root=args.qual_label_dir,
+                                                batch_size=args.val_batch_size,
+                                                shuffle=True,
+                                                num_workers=args.num_workers
+                        ))
         trainer = Trainer(loaders, args)
         trainer.train()
     elif args.mode == 'test':
