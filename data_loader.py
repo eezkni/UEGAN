@@ -106,7 +106,8 @@ class TestDataset(data.Dataset):
         img = self._get_img(fname_path)
         file_name = os.path.basename(fname_path)
 
-        label_img = []
+        # for dummy return if there is no label img
+        label_img = img
         if len(self.label_samples) > 0:
             label_fname = self.label_samples[index]
             label_img = self._get_img(label_fname)
