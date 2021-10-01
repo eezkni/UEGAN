@@ -14,6 +14,7 @@ from metrics.CalcPSNR import calc_psnr
 from metrics.CalcSSIM import calc_ssim
 from tqdm import *
 from data_loader import InputFetcher
+from utils import tensor_to_img
 
 
 class Tester(object):
@@ -78,8 +79,8 @@ class Tester(object):
                     fake_img_rgb = tensor_to_img(save_imgs.detach())
                     test_gen_imgs.append(fake_img_rgb)
 
-                    val_real_label = denorm(val_real_label.data)[i:i + 1,:,:,:]
-                    real_label_rgb = tensor_to_img(val_real_label.detach())
+                    test_real_label = denorm(test_real_label.data)[i:i + 1,:,:,:]
+                    real_label_rgb = tensor_to_img(test_real_label.detach())
                     test_label_imgs.append(real_label_rgb)
 
                     save_image(save_imgs, save_path)
