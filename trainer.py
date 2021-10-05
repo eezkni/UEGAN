@@ -412,10 +412,14 @@ class Trainer(object):
     def print_network(self, model, name):
         """Print out the network information."""
         num_params = 0
+        trainable_num_params = 0
         for p in model.parameters():
             num_params += p.numel()
+            if p.requires_grad:
+                trainable_num_params += p.numel()
         # print(model)
         print("=== The number of parameters of the above model [{}] is [{}] or [{:>.4f}M] ===".format(name, num_params, num_params / 1e6))
+        print("=== The no of trainable_params of the above model [{}] is [{}] or [{:>.4f}M] ===".format(name, num_params, num_params / 1e6))
 
 
     def load_pretrained_model(self, resume_epochs):
