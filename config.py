@@ -1,7 +1,20 @@
 #-*-coding:utf-8-*-
 
 import argparse
+
+from torch.utils import data
 from utils import str2bool
+
+
+def combine_dataset_arguments(args):
+    data_config = {}
+    dataset_args = ['dataset_type', 'jpeg_aug', 'jpeg_prob']
+    for a in dataset_args:
+        data_config[a] = getattr(args, a)
+        setattr(args, a, None)
+
+    setattr(args, 'data_config', data_config)
+    return args
 
 
 def get_config():
@@ -49,6 +62,11 @@ def get_config():
     parser.add_argument('--idt_loss_type', type=str, default='l1', help='identity_loss: l1|l2|smoothl1 ')
     parser.add_argument('--pool_size', type=int, default=50, help='the size of image buffer, pool_size=0 means no buffer')
 
+    # dataset configuration
+    parser.add_argument('--dataset_type', type=str, help='data pre-processing pipeline type for creating model input')
+    parser.add_argument('--jpeg_aug', nargs="*", type=float, help='min and max values for jpeg compression quality')
+    parser.add_argument('--jpeg_prob', type=float, help='prob of applying jpeg compression augmentation')
+
     # validation and test configuration
     parser.add_argument('--num_epochs_start_val', type=int, default=8, help='start validate the model')
     parser.add_argument('--val_each_epochs', type=int, default=2, help='validate the model every time after training these epochs')
@@ -82,4 +100,7 @@ def get_config():
     parser.add_argument('--is_test_nima', type=str2bool, default=True)
     parser.add_argument('--is_test_psnr_ssim', type=str2bool, default=False)
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    args = combine_dataset_arguments(args)
+
+    return args
