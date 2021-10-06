@@ -9,7 +9,7 @@
 
 ## Introdcurion
 
-This website shares the codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network", IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. 
+This website shares the Pytorch codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network", IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. 
 
 <div align=center><img src="./figures/examples.PNG" width = "100%" height = "100%" /></div>
 
@@ -69,9 +69,7 @@ You can follow the instructions below to generate your own training images. Or, 
 ## Testing
 Having trained your models or the [pre-trained model on MIT-Adobe FiveK Dataset](https://drive.google.com/file/d/1BVZuP5iMqqrULmanACcCWLJc1X66VorD/view?usp=sharing) (put into ```./results/UEGAN-FiveK/models/```), to test the pre-trained UEGAN on FiveK, run the test script below.
 ```
-python main.py --mode test --version UEGAN-FiveK --pretrained_model 92 \
---is_test_nima True --is_test_psnr_ssim True
-
+python main.py --mode test --version UEGAN-FiveK --pretrained_model 92 --is_test_nima True --is_test_psnr_ssim True
 ```
 
 ## Training
@@ -144,7 +142,7 @@ If this code/UEGAN is useful for your research, please cite our paper:
 
 ## Contact
 
-Thanks for your attention! If you have any suggestion or question, feel free to leave a message here or contact Mr. Zhangkai Ni (eezkni@gmail.com).
+Thanks for your attention! If you have any suggestion or question, feel free to leave a message here or contact Dr. Zhangkai Ni (eezkni@gmail.com).
 
 
 ## License
