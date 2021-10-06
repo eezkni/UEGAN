@@ -7,7 +7,7 @@
 
 <sup>1</sup>City University of Hong Kong, <sup>2</sup>Meituan Group
 
-## Introdcurion
+<!-- ## Introdcurion -->
 
 This website shares the Pytorch codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network", IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. 
 
