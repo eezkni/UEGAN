@@ -103,8 +103,7 @@ data
 
 To train UEGAN on FiveK, run the training script below.
 ```
-python main.py --mode train --version UEGAN-FiveK --use_tensorboard True \
---is_test_nima True --is_test_psnr_ssim True
+python main.py --mode train --version UEGAN-FiveK --use_tensorboard True --is_test_nima True --is_test_psnr_ssim True
 ```
 
 This script will create a folder named ```./results``` in which the resulting are saved. 
