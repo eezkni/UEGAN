@@ -28,7 +28,7 @@ class Trainer(object):
         # Directories.
         self.model_save_path = os.path.join(args.save_root_dir, args.version, args.model_save_path)
         self.sample_path = os.path.join(args.save_root_dir, args.version, args.sample_path)
-        self.log_path = os.path.join(args.save_root_dir, args.version, args.log_path)
+        self.log_path = os.path.join(args.log_path, args.version)
         self.val_result_path = os.path.join(args.save_root_dir, args.version, args.val_result_path)
 
         # Build the model and tensorboard.
