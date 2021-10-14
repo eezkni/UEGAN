@@ -54,7 +54,7 @@ class Trainer(object):
 
         # set loss functions
         self.criterionPercep = PerceptualLoss()
-        self.criterionIdt = MultiscaleRecLoss(scale=3, rec_loss_type=self.args.idt_loss_type, multiscale=True)
+        self.criterionIdt = MultiscaleRecLoss(scale=3, rec_loss_type=self.args.idt_loss_type, multiscale=True, loss_wts=self.args.idt_loss_wts)
         self.criterionGAN = GANLoss(self.args.adv_loss_type, tensor=torch.cuda.FloatTensor)
 
         # start from scratch or trained models
@@ -80,7 +80,10 @@ class Trainer(object):
 
             ########## data iter
             input = next(self.fetcher)
-            self.real_raw, self.real_exp, self.real_raw_name = input.img_raw, input.img_exp, input.img_name
+            self.real_raw = input.img_raw
+            self.real_exp = input.img_exp
+            self.orig_raw = input.img_orig_raw
+            self.real_raw_name = input.img_name
 
             ########## forward
             self.fake_exp = self.G(self.real_raw)
@@ -106,18 +109,21 @@ class Trainer(object):
             self.g_adv_loss = g_adv_loss.item()
             g_loss = g_adv_loss
 
-            g_percep_loss = self.args.lambda_percep * self.criterionPercep((self.fake_exp+1.)/2., (self.real_raw+1.)/2.)
+            g_percep_loss = self.args.lambda_percep * self.criterionPercep((self.fake_exp+1.)/2., (self.orig_raw+1.)/2.)
             self.g_percep_loss = g_percep_loss.item()
             g_loss += g_percep_loss
 
             self.real_exp_idt = self.G(self.real_exp)
-            g_idt_loss = self.args.lambda_idt * self.criterionIdt(self.real_exp_idt, self.real_exp)
+            g_idt_loss = self.args.lambda_idt * self.criterionIdt(self.real_exp_idt, self.orig_raw)
             self.g_idt_loss = g_idt_loss.item()
             g_loss += g_idt_loss
 
             g_loss.backward()
             self.g_optimizer.step()
             self.g_loss = g_loss.item()
+
+            self.lr_G = self.g_optimizer.param_groups[0]['lr']
+            self.lr_D = self.d_optimizer.param_groups[0]['lr']
 
             ### print info and save models
             self.print_info(step, total_steps, pbar)
@@ -157,6 +163,10 @@ class Trainer(object):
         self.loss['G/percep_loss'] = self.g_percep_loss
         self.loss['G/idt_loss'] = self.g_idt_loss
 
+        self.lr = {}
+        self.lr['lr/G'] = self.lr_G
+        self.lr['lr/D'] = self.lr_D
+
         self.images['Train_realExpIdt/realExp_realExpIdt'] = torch.cat([denorm(self.real_exp.cpu()), denorm(self.real_exp_idt.detach().cpu())], 3)
         self.images['Train_compare/realRaw_fakeExp_realExp'] = torch.cat([denorm(self.real_raw.cpu()), denorm(self.fake_exp.detach().cpu()), denorm(self.real_exp.cpu())], 3)
         self.images['Train_fakeExp/fakeExp'] = denorm(self.fake_exp.detach().cpu())
@@ -168,6 +178,8 @@ class Trainer(object):
                     self.logger.scalar_summary(tag, value, step+1)
                 for tag, image in self.images.items():
                     self.logger.images_summary(tag, image, step+1)
+                for tag, value in self.lr.items():
+                    self.logger.images_summary(tag, value, step+1)
 
 
     def print_info(self, step, total_steps, pbar):
@@ -236,7 +248,7 @@ class Trainer(object):
                     for val_step in range(val_start, val_total_steps):
 
                         input = next(data_fetcher)
-                        val_real_raw, val_real_label, val_name = input.img_raw, input.img_exp, input.img_name
+                        val_real_raw, val_real_label, orig_real_raw, val_name = input.img_raw, input.img_exp, input.img_orig_raw, input.img_name
 
                         val_fake_exp = self.G(val_real_raw)
 
