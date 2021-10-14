@@ -179,7 +179,7 @@ class Trainer(object):
                 for tag, image in self.images.items():
                     self.logger.images_summary(tag, image, step+1)
                 for tag, value in self.lr.items():
-                    self.logger.images_summary(tag, value, step+1)
+                    self.logger.scalar_summary(tag, value, step+1)
 
 
     def print_info(self, step, total_steps, pbar):
