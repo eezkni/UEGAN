@@ -18,7 +18,7 @@ class PerceptualLoss(nn.Module):
         self.IN = nn.InstanceNorm2d(512, affine=False, track_running_stats=False)
         self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1,-1,1,1)
         self.std = torch.tensor([0.229, 0.224, 0.225]).view(1,-1,1,1)
-    
+
     def __call__(self, x, y):
         if x.shape[1] != 3:
             x = x.repeat(1, 3, 1, 1)
@@ -26,7 +26,7 @@ class PerceptualLoss(nn.Module):
         x = (x - self.mean.to(x)) / self.std.to(x)
         y = (y - self.mean.to(y)) / self.std.to(y)
         x_vgg, y_vgg = self.vgg(x), self.vgg(y)
-        
+
         loss  = self.weights[0] * self.criterion(self.IN(x_vgg['relu1_1']), self.IN(y_vgg['relu1_1']))
         loss += self.weights[1] * self.criterion(self.IN(x_vgg['relu2_1']), self.IN(y_vgg['relu2_1']))
         loss += self.weights[2] * self.criterion(self.IN(x_vgg['relu3_1']), self.IN(y_vgg['relu3_1']))
@@ -200,7 +200,7 @@ class AngularLoss(torch.nn.Module):
 
 
 class MultiscaleRecLoss(nn.Module):
-    def __init__(self, scale=3, rec_loss_type='l1', multiscale=True):
+    def __init__(self, scale=3, rec_loss_type='l1', multiscale=True, loss_wts = [1.0, 1.0/2, 1.0/4]):
         super(MultiscaleRecLoss, self).__init__()
         self.multiscale = multiscale
         if rec_loss_type == 'l1':
@@ -213,7 +213,7 @@ class MultiscaleRecLoss(nn.Module):
             raise NotImplementedError('Loss [{}] is not implemented'.format(rec_loss_type))
         self.downsample = nn.AvgPool2d(2, stride=2, count_include_pad=False)
         if self.multiscale:
-            self.weights = [1.0, 1.0/2, 1.0/4]
+            self.weights = loss_wts
             self.weights = self.weights[:scale]
 
     def forward(self, input, target):
@@ -309,8 +309,8 @@ class GANLoss(nn.Module):
                 return loss
             else:
                 raise NotImplementedError("nither for real_preds nor for fake_preds")
-        elif self.gan_mode == 'ls':   
-            if for_real:  
+        elif self.gan_mode == 'ls':
+            if for_real:
                 target_tensor = self.get_target_tensor(real_preds, target_is_real)
                 return F.mse_loss(real_preds, target_tensor)
             elif for_fake:
@@ -320,7 +320,7 @@ class GANLoss(nn.Module):
                 raise NotImplementedError("nither for real_preds nor for fake_preds")
         elif self.gan_mode == 'hinge':
             if for_real:
-                if for_discriminator:                
+                if for_discriminator:
                     if target_is_real:
                         minval = torch.min(real_preds - 1, self.get_zero_tensor(real_preds))
                         loss = -torch.mean(minval)
@@ -332,7 +332,7 @@ class GANLoss(nn.Module):
                     loss = -torch.mean(real_preds)
                 return loss
             elif for_fake:
-                if for_discriminator:                
+                if for_discriminator:
                     if target_is_real:
                         minval = torch.min(fake_preds - 1, self.get_zero_tensor(fake_preds))
                         loss = -torch.mean(minval)
