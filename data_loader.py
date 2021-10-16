@@ -7,12 +7,14 @@ import os
 import io
 import imageio
 
+from imresize import imresize
 from munch import Munch
 from PIL import Image
 
 import torch
 from torch.utils import data
 from torchvision import transforms
+import torchvision.transforms.functional as TF
 
 
 def listdir(dname):
@@ -40,10 +42,21 @@ class DefaultDataset(data.Dataset):
 
 
 class ReferenceDataset(data.Dataset):
-    def __init__(self, root, config=None, transform=None):
+    def __init__(self, root, img_size, resize_size, config=None):
         self.samples = self._make_dataset(root)
-        self.transform = transform
         self.config = config
+        self.img_size = img_size
+        self.resize_size = resize_size
+
+        self.transform = transforms.Compose([
+                                    transforms.RandomCrop(img_size),
+                                    #transforms.Resize([resize_size, resize_size]),
+                                    transforms.RandomHorizontalFlip(p=0.5),
+                                    transforms.RandomVerticalFlip(p=0.5),
+                                    transforms.ToTensor(),
+                                    transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                                        std=[0.5, 0.5, 0.5]),
+                        ])
 
     def _make_dataset(self, root):
         domains = os.listdir(root)
@@ -62,38 +75,116 @@ class ReferenceDataset(data.Dataset):
         return list(zip(fnames, fnames2))
 
     def __getitem__(self, index):
-        fname, fname2 = self.samples[index]
-        name = str(fname2)
+        exp_fname, raw_fname = self.samples[index]
+        name = str(raw_fname)
         img_name, _ = name.split('.', 1)
         _, img_name = img_name.rsplit('/', 1)
-        img = Image.open(fname).convert('RGB')
-        img2 = Image.open(fname2).convert('RGB')
+        exp_img = Image.open(exp_fname).convert('RGB')
+        raw_img = Image.open(raw_fname).convert('RGB')
         if self.transform is not None:
-            img = self.transform(img)
-            img2 = self.transform(img2)
-        return img, img2, img_name
+            exp_img = self.transform(exp_img)
+            raw_img = self.transform(raw_img)
+        return raw_img, exp_img, img_name, raw_img
 
     def __len__(self):
         return len(self.samples)
 
 
 class NoiseAugmentDataset(ReferenceDataset):
-    def __init__(self, root, config, transform=None):
-        super().__init__(root, transform=transform, config=config)
+    def __init__(self, root, img_size, resize_size, config=None):
+        super().__init__(root, img_size, resize_size, config=config)
+
         self.do_jpeg_aug = True if 'jpeg_aug' in self.config else False
-        self.jpeg_min_qual = self.config['jpeg_aug'][0]
-        self.jpeg_max_qual = self.config['jpeg_aug'][1]
+        if self.do_jpeg_aug:
+            self.jpeg_min_qual = self.config['jpeg_aug'][0]
+            self.jpeg_max_qual = self.config['jpeg_aug'][1]
+
+        self.do_scale_up_down = True if 'scale_up_down_prob' in self.config else False
+        if self.do_scale_up_down:
+            self.scale_up_down_prob = self.config['scale_up_down_prob']
+
+        self.AUGMENT_TYPE = ["none", "jpg", "scale_up_down", "blur", \
+                                            "jpg-scale_up_down", "jpg-blur", \
+                                            "scale_up_down-blur", \
+                                            "all"]
+        assert len(self.config['aug_prob']) == len(self.AUGMENT_TYPE), \
+                    "Not enough probs. for all augmentations"
+
+        self.pst_transform = transforms.Compose([
+                                    transforms.ToTensor(),
+                                    transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                                        std=[0.5, 0.5, 0.5]),
+                        ])
+
+    def _twin_transform(self, img1, img2=None):
+        # Random crop
+        i, j, h, w = transforms.RandomCrop.get_params(
+                                                img1,
+                                                output_size=(self.img_size, self.img_size))
+        img1 = TF.crop(img1, i, j, h, w)
+        if img2 is not None:
+            img2 = TF.crop(img2, i, j, h, w)
+
+        # Random horizontal flipping
+        if random.random() < 0.5:
+            img1 = TF.hflip(img1)
+            if img2 is not None:
+                img2 = TF.hflip(img2)
+
+        # Random horizontal flipping
+        if random.random() < 0.5:
+            img1 = TF.vflip(img1)
+            if img2 is not None:
+                img2 = TF.vflip(img2)
+
+        img1 = self.pst_transform(img1)
+        img2 = self.pst_transform(img2)
+        return img1, img2
+
+    def _add_scale_up_down_aug(self, img):
+        #from debugpy_util import debug
+        #debug(address='10.42.96.4:5678')
+
+        h, w = img.size[:2]
+        # TODO: try 2, 3 scale as well
+        img = img.resize((h // 2, w // 2), Image.BICUBIC)
+        img = img.resize((h, w), Image.BICUBIC)
+        return img
 
     def _add_jpeg_aug(self, img):
-        if self.do_jpeg_aug and self.config['jpeg_prob'] > random.uniform(0, 1):
-            buf = io.BytesIO()
-            quality = random.randint(self.jpeg_min_qual, self.jpeg_max_qual)
+        buf = io.BytesIO()
+        quality = random.randint(self.jpeg_min_qual, self.jpeg_max_qual)
 
-            # TODO: optimize it by removing imageio
-            imageio.imwrite(buf, img, format='JPEG', quality=quality)
-            img = imageio.imread(buf.getvalue())
-            np_img = np.asarray(img)
-            img = Image.fromarray(np_img)
+        # TODO: optimize it by removing imageio
+        imageio.imwrite(buf, img, format='JPEG', quality=quality)
+        img = imageio.imread(buf.getvalue())
+        np_img = np.asarray(img)
+        img = Image.fromarray(np_img)
+        return img
+
+    def _img_noise_augment(self, img):
+        aug_type = random.choices(self.AUGMENT_TYPE, self.config['aug_prob'])[0]
+        if aug_type == "none":
+            return img
+        elif aug_type == "jpg":
+            img = self._add_jpeg_aug(img)
+        elif aug_type == "scale_up_down":
+            img = self._add_scale_up_down_aug(img)
+        elif aug_type == "blur":
+            img = self._add_blur_aug(img)
+        elif aug_type == "jpg-scale_up_down":
+            img = self._add_scale_up_down_aug(img)
+            img = self._add_jpeg_aug(img)
+        elif aug_type == "jpg-blur":
+            img = self._add_blur_aug(img)
+            img = self._add_jpeg_aug(img)
+        elif aug_type == "scale_up_down-blur":
+            img = self._add_scale_up_down_aug(img)
+            img = self._add_blur_aug(img)
+        elif "all":
+            img = self._add_scale_up_down_aug(img)
+            img = self._add_blur_aug(img)
+            img = self._add_jpeg_aug(img)
 
         return img
 
@@ -105,28 +196,33 @@ class NoiseAugmentDataset(ReferenceDataset):
 
         raw_img = Image.open(raw_fname).convert('RGB')
         exp_img = Image.open(exp_fname).convert('RGB')
+        orig_raw_img = raw_img
 
-        #raw_img.save('/tmp/img/' + img_name.split('.')[0] + '_apre.png')
+        raw_img = self._img_noise_augment(raw_img)
 
-        # jpeg noise augmentation
-        #from debugpy_util import debug
-        #debug(address='10.42.96.4:5678')
-        if  self.do_jpeg_aug:
-            raw_img = self._add_jpeg_aug(raw_img)
+        # # FIXME: comment it before running
+        # # FIXME: remove it
+        # dir = '/tmp/img/' + aug_type + '/'
+        # print(aug_type, " ", os.path.exists(dir))
+        # if not os.path.exists(dir):
+        #     os.makedirs(dir)
+        # orig_raw_img.save('/tmp/img/' + aug_type + '/' + img_name.split('.')[0] + '_a_pre.png')
 
         if self.transform is not None:
-            raw_img = self.transform(raw_img)
+            raw_img, orig_raw_img = self._twin_transform(raw_img, orig_raw_img)
             exp_img = self.transform(exp_img)
 
-        '''
-            img_rgb = transforms.ToPILImage()(raw_img)
-            exp_rgb = transforms.ToPILImage()(exp_img)
-            img_rgb.save('/tmp/img/' + img_name.split('.')[0] + '_bin.png')
-            exp_rgb.save('/tmp/img/' + img_name.split('.')[0] + '_lbl.png')
-            print("saved")
-        '''
-        return exp_img, raw_img, img_name
+        # # FIXME: comment it before running
+        # img_rgb = transforms.ToPILImage()(raw_img)
+        # img_rgb.save('/tmp/img/' + aug_type + '/' + img_name.split('.')[0] + '_c_in.png')
+        # orig_img_rgb = transforms.ToPILImage()(orig_raw_img)
+        # exp_rgb = transforms.ToPILImage()(exp_img)
+        # orig_img_rgb.save('/tmp/img/' + aug_type + '/' + img_name.split('.')[0] + '_b_orig.png')
+        # #img_rgb.save('/tmp/img/' + img_name.split('.')[0] + '_e_in.png')
+        # exp_rgb.save('/tmp/img/' + aug_type + '/' + img_name.split('.')[0] + '_lbl.png')
+        # print("saved")
 
+        return raw_img, exp_img, img_name, orig_raw_img
 
 class TestDataset(data.Dataset):
     def __init__(self, root, label_root, transform=None):
@@ -179,7 +275,7 @@ class TestDataset(data.Dataset):
         # label_img_rgb.save('/tmp/img/' + file_name.split('.')[0] + '_lbl.png')
         # print("saved")
 
-        return label_img, img, file_name
+        return img, label_img, file_name, img
 
     def __len__(self):
         return len(self.samples)
@@ -206,7 +302,7 @@ def get_train_loader(root, config, img_size=512, \
     else:
         raise NotImplementedError("Unrecoganized dataset type!")
 
-    dataset = D(root, config, transform)
+    dataset = D(root, img_size, resize_size, config)
 
     return data.DataLoader(dataset=dataset,
                            batch_size=batch_size,
@@ -238,16 +334,15 @@ class InputFetcher:
 
     def _fetch_refs(self):
         try:
-            x, y, name = next(self.iter)
+            raw_img, exp_img, name, orig_raw_img = next(self.iter)
         except (AttributeError, StopIteration):
             self.iter = iter(self.loader)
-            x, y, name = next(self.iter)
-        return x, y, name
+            raw_img, exp_img, name, orig_raw_img = next(self.iter)
+        return raw_img, exp_img, name, orig_raw_img
 
     def __next__(self):
-        x, y, img_name = self._fetch_refs()
-        x, y = x.to(self.device), y.to(self.device)
-        inputs = Munch(img_exp=x, img_raw=y, img_name=img_name)
+        raw_img, exp_img, img_name, orig_raw_img = self._fetch_refs()
+        raw_img, exp_img, orig_raw_img = raw_img.to(self.device), exp_img.to(self.device), orig_raw_img.to(self.device)
+        inputs = Munch(img_exp=exp_img, img_raw=raw_img, img_orig_raw=orig_raw_img, img_name=img_name)
 
         return inputs
-

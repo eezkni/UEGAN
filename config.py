@@ -8,10 +8,12 @@ from utils import str2bool
 
 def combine_dataset_arguments(args):
     data_config = {}
-    dataset_args = ['dataset_type', 'jpeg_aug', 'jpeg_prob']
+    dataset_args = ['dataset_type', 'jpeg_aug', 'aug_prob']
     for a in dataset_args:
-        data_config[a] = getattr(args, a)
-        setattr(args, a, None)
+        arg_value = getattr(args, a)
+        if arg_value is not None:
+            data_config[a] = arg_value
+            setattr(args, a, None)
 
     setattr(args, 'data_config', data_config)
     return args
@@ -32,7 +34,7 @@ def get_config():
     parser.add_argument('--drop_last', type=str2bool, default=True, help=' drop the last incomplete batch')
     parser.add_argument('--version', type=str, default='UEGAN-FiveK', help='UEGAN')
     parser.add_argument('--init_type', type=str, default='orthogonal', help='normal|xavier|kaiming|orthogonal')
-    parser.add_argument('--adv_input',type=str2bool, default=True, help='whether discriminator input')
+    parser.add_argument('--adv_input',type=str2bool, default=True, help='whether discriminator input imgs')
     parser.add_argument('--g_use_sn', type=str2bool, default=False, help='whether use spectral normalization in G')
     parser.add_argument('--d_use_sn', type=str2bool, default=True, help='whether use spectral normalization in D')
     parser.add_argument('--g_act_fun', type=str, default='LeakyReLU', help='LeakyReLU|ReLU|Swish|SELU|none')
@@ -60,12 +62,18 @@ def get_config():
     parser.add_argument('--lambda_percep', type=float, default=1.0, help='weight for perceptual loss')
     parser.add_argument('--lambda_idt', type=float, default=0.10, help='weight for identity loss')
     parser.add_argument('--idt_loss_type', type=str, default='l1', help='identity_loss: l1|l2|smoothl1 ')
+    parser.add_argument('--idt_loss_wts', nargs="*", type=float, default= [1.0, 1.0/2, 1.0/4], help='identity_loss: l1|l2|smoothl1 ')
     parser.add_argument('--pool_size', type=int, default=50, help='the size of image buffer, pool_size=0 means no buffer')
 
     # dataset configuration
     parser.add_argument('--dataset_type', type=str, help='data pre-processing pipeline type for creating model input')
     parser.add_argument('--jpeg_aug', nargs="*", type=float, help='min and max values for jpeg compression quality')
-    parser.add_argument('--jpeg_prob', type=float, help='prob of applying jpeg compression augmentation')
+    parser.add_argument('--aug_prob', nargs="*", type=float, help='probs of applying augmentations in this order: "none", "jpg", "scale_up_down", "blur", \
+                                            "jpg-scale_up_down", "jpg-blur", \
+                                            "scale_up_down-blur", \
+                                            "all"')
+    #parser.add_argument('--jpeg_prob', type=float, help='prob of applying jpeg compression augmentation')
+    #parser.add_argument('--scale_up_down_prob', type=float, help='prob of applying jpeg compression augmentation')
 
     # validation and test configuration
     parser.add_argument('--num_epochs_start_val', type=int, default=8, help='start validate the model')
