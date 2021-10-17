@@ -52,6 +52,8 @@ def get_config():
     parser.add_argument('--g_lr', type=float, default=1e-4, help='learning rate for G')
     parser.add_argument('--d_lr', type=float, default=4e-4, help='learning rate for D')
     parser.add_argument('--lr_decay', type=str2bool, default=True, help='setup learning rate decay schedule')
+    parser.add_argument('--min_lr_g', type=float, help='Min lr for G')
+    parser.add_argument('--min_lr_d', type=float, help='Min lr for D')
     parser.add_argument('--lr_num_epochs_decay', type=int, default=50, help='LambdaLR: epoch at starting learning rate')
     parser.add_argument('--lr_decay_ratio', type=int, default=50, help='LambdaLR: ratio of linearly decay learning rate to zero')
     parser.add_argument('--optimizer_type', type=str, default='adam', help='adam|rmsprop')

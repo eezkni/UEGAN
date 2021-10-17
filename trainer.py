@@ -30,6 +30,8 @@ class Trainer(object):
         self.sample_path = os.path.join(args.save_root_dir, args.version, args.sample_path)
         self.log_path = os.path.join(args.log_path, args.version)
         self.val_result_path = os.path.join(args.save_root_dir, args.version, args.val_result_path)
+        self.lr_G = args.g_lr
+        self.lr_D = args.d_lr
 
         # Build the model and tensorboard.
         self.build_model()
@@ -136,10 +138,13 @@ class Trainer(object):
             self.model_validation(step, self.fetcher_quality, len(self.loaders.qual_set), save_imgs=True, cal_metrics=False)
 
             ### learning rate update
+            ### learning rate update
             if step % self.train_steps_per_epoch == 0:
                 current_epoch = step // self.train_steps_per_epoch
-                self.lr_scheduler_g.step(epoch=current_epoch)
-                self.lr_scheduler_d.step(epoch=current_epoch)
+                if self.lr_G > self.args.min_lr_g:
+                    self.lr_scheduler_g.step(epoch=current_epoch)
+                if self.lr_D > self.args.min_lr_d:
+                    self.lr_scheduler_d.step(epoch=current_epoch)
                 for param_group in self.g_optimizer.param_groups:
                     pbar.write("====== Epoch: {:>3d}/{}, Learning rate(lr) of Encoder(E) and Generator(G): [{}], ".format(((step + 1) // self.train_steps_per_epoch), self.args.total_epochs, param_group['lr']), end='')
                 for param_group in self.d_optimizer.param_groups:
