@@ -141,10 +141,10 @@ class Trainer(object):
             ### learning rate update
             if step % self.train_steps_per_epoch == 0:
                 current_epoch = step // self.train_steps_per_epoch
-                if self.lr_G > self.args.min_lr_g:
-                    self.lr_scheduler_g.step(epoch=current_epoch)
-                if self.lr_D > self.args.min_lr_d:
-                    self.lr_scheduler_d.step(epoch=current_epoch)
+                if self.lr_G > self.args.min_lr_g and current_epoch > self.args.lr_num_epochs_decay:
+                    self.lr_scheduler_g.step()
+                if self.lr_D > self.args.min_lr_d and current_epoch > self.args.lr_num_epochs_decay:
+                    self.lr_scheduler_d.step()
                 for param_group in self.g_optimizer.param_groups:
                     pbar.write("====== Epoch: {:>3d}/{}, Learning rate(lr) of Encoder(E) and Generator(G): [{}], ".format(((step + 1) // self.train_steps_per_epoch), self.args.total_epochs, param_group['lr']), end='')
                 for param_group in self.d_optimizer.param_groups:
@@ -381,10 +381,8 @@ class Trainer(object):
 
         # learning rate decay
         if self.args.lr_decay:
-            def lambda_rule(epoch):
-                return 1.0 - max(0, epoch + 1 - self.args.lr_num_epochs_decay) / self.args.lr_decay_ratio
-            self.lr_scheduler_g = torch.optim.lr_scheduler.LambdaLR(self.g_optimizer, lr_lambda=lambda_rule)
-            self.lr_scheduler_d = torch.optim.lr_scheduler.LambdaLR(self.d_optimizer, lr_lambda=lambda_rule)
+            self.lr_scheduler_g = torch.optim.lr_scheduler.ExponentialLR(self.g_optimizer, gamma=self.args.lr_decay_ratio)
+            self.lr_scheduler_d = torch.optim.lr_scheduler.ExponentialLR(self.d_optimizer, gamma=self.args.lr_decay_ratio)
             print("=== Set learning rate decay policy for Generator(G) and Discriminator(D) ===")
 
         self.fake_exp_pool = ImagePool(self.args.pool_size)
