@@ -7,7 +7,7 @@ import datetime
 import torch.nn as nn
 from torchvision.utils import save_image, make_grid
 from losses import PerceptualLoss, GANLoss, MultiscaleRecLoss
-from utils import Logger, denorm, ImagePool, tensor_to_img
+from utils import Logger, denorm, ImagePool, tensor_to_img, tensor_bgr_to_gray_scale
 from models import Generator, Discriminator
 from metrics.NIMA.CalcNIMA import calc_nima
 from metrics.CalcPSNR import calc_psnr
@@ -116,7 +116,7 @@ class Trainer(object):
             g_loss += g_percep_loss
 
             self.real_exp_idt = self.G(self.real_exp)
-            g_idt_loss = self.args.lambda_idt * self.criterionIdt(self.real_exp_idt, self.orig_raw)
+            g_idt_loss = self.args.lambda_idt * self.criterionIdt(self.real_exp_idt, self.real_exp)
             self.g_idt_loss = g_idt_loss.item()
             g_loss += g_idt_loss
 
