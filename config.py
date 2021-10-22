@@ -60,6 +60,7 @@ def get_config():
     parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for Adam optimizer')
     parser.add_argument('--beta2', type=float, default=0.999, help='beta2 for Adam optimizer')
     parser.add_argument('--alpha', type=float, default=0.9, help='alpha for rmsprop optimizer')
+    parser.add_argument('--black_n_white_loss', type=str2bool, default=False, help='Convert to gray scale fo identity and L1 loss')
     parser.add_argument('--lambda_adv', type=float, default=0.10, help='weight for adversarial loss')
     parser.add_argument('--lambda_percep', type=float, default=1.0, help='weight for perceptual loss')
     parser.add_argument('--lambda_idt', type=float, default=0.10, help='weight for identity loss')
@@ -79,7 +80,7 @@ def get_config():
 
     # validation and test configuration
     parser.add_argument('--num_epochs_start_val', type=int, default=8, help='start validate the model')
-    parser.add_argument('--val_each_epochs', type=int, default=2, help='validate the model every time after training these epochs')
+    parser.add_argument('--val_interval_rel_epoch', type=float, default=2.0, help='validate the model every time after training this fraction of the epoch')
 
     # Directories.
     parser.add_argument('--train_img_dir', type=str, default='./data/fivek/train')
