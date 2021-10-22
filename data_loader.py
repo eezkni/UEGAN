@@ -6,10 +6,12 @@ from itertools import chain
 import os
 import io
 import imageio
+import copy
 
 from imresize import imresize
 from munch import Munch
 from PIL import Image
+from utils import list_files_in_dir
 
 import torch
 from torch.utils import data
@@ -50,7 +52,6 @@ class ReferenceDataset(data.Dataset):
 
         self.transform = transforms.Compose([
                                     transforms.RandomCrop(img_size),
-                                    #transforms.Resize([resize_size, resize_size]),
                                     transforms.RandomHorizontalFlip(p=0.5),
                                     transforms.RandomVerticalFlip(p=0.5),
                                     transforms.ToTensor(),
@@ -199,30 +200,41 @@ class NoiseAugmentDataset(ReferenceDataset):
         orig_raw_img = raw_img
 
         raw_img = self._img_noise_augment(raw_img)
-
-        # # FIXME: comment it before running
-        # # FIXME: remove it
-        # dir = '/tmp/img/' + aug_type + '/'
-        # print(aug_type, " ", os.path.exists(dir))
-        # if not os.path.exists(dir):
-        #     os.makedirs(dir)
-        # orig_raw_img.save('/tmp/img/' + aug_type + '/' + img_name.split('.')[0] + '_a_pre.png')
+        # orig_raw_img.save('/tmp/img/' + img_name.split('.')[0] + '_a_pre.png')
 
         if self.transform is not None:
             raw_img, orig_raw_img = self._twin_transform(raw_img, orig_raw_img)
             exp_img = self.transform(exp_img)
 
-        # # FIXME: comment it before running
         # img_rgb = transforms.ToPILImage()(raw_img)
-        # img_rgb.save('/tmp/img/' + aug_type + '/' + img_name.split('.')[0] + '_c_in.png')
+        # img_rgb.save('/tmp/img/' + img_name.split('.')[0] + '_c_in.png')
         # orig_img_rgb = transforms.ToPILImage()(orig_raw_img)
         # exp_rgb = transforms.ToPILImage()(exp_img)
-        # orig_img_rgb.save('/tmp/img/' + aug_type + '/' + img_name.split('.')[0] + '_b_orig.png')
+        # orig_img_rgb.save('/tmp/img/' + img_name.split('.')[0] + '_b_orig.png')
         # #img_rgb.save('/tmp/img/' + img_name.split('.')[0] + '_e_in.png')
-        # exp_rgb.save('/tmp/img/' + aug_type + '/' + img_name.split('.')[0] + '_lbl.png')
+        # exp_rgb.save('/tmp/img/' + img_name.split('.')[0] + '_lbl.png')
         # print("saved")
 
         return raw_img, exp_img, img_name, orig_raw_img
+
+
+class NonExpNoiseAugmentDataset(NoiseAugmentDataset):
+    def __init__(self, root, img_size, resize_size, config=None):
+        super().__init__(root, img_size, resize_size, config=config)
+
+    def _make_dataset(self, root):
+        fnames, fnames2 = [], []
+
+        filenames = list_files_in_dir(root)
+        for fn in filenames:
+            file_path = os.path.join(root, fn)
+            fnames.append(file_path)
+
+        fnames2 = copy.deepcopy(fnames)
+        random.shuffle(fnames)
+        random.shuffle(fnames2)
+        return list(zip(fnames, fnames2))
+
 
 class TestDataset(data.Dataset):
     def __init__(self, root, label_root, transform=None):
@@ -285,20 +297,12 @@ def get_train_loader(root, config, img_size=512, \
                     resize_size=256, batch_size=8, shuffle=True, \
                     num_workers=8, drop_last=True):
 
-    transform = transforms.Compose([
-        transforms.RandomCrop(img_size),
-        transforms.Resize([resize_size, resize_size]),
-        transforms.RandomHorizontalFlip(p=0.5),
-        transforms.RandomVerticalFlip(p=0.5),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                             std=[0.5, 0.5, 0.5]),
-    ])
-
     if config['dataset_type'] == "ref":
         D = ReferenceDataset
     elif config['dataset_type'] == "noise_aug":
         D = NoiseAugmentDataset
+    elif config['dataset_type'] == "non_exp_noise_aug":
+        D = NonExpNoiseAugmentDataset
     else:
         raise NotImplementedError("Unrecoganized dataset type!")
 

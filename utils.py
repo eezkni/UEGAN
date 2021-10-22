@@ -11,11 +11,13 @@ from PIL import Image
 import numpy as np
 import csv
 import random
+import pathlib
 import tensorflow as tf
 from torch.utils.tensorboard import SummaryWriter
 import torchvision
 import scipy.misc
 from torch.optim.optimizer import Optimizer, required
+from subprocess import check_output
 try:
     from StringIO import StringIO  # Python 2.7
 except ImportError:
@@ -254,3 +256,10 @@ def tensor_to_img(tensor):
     ndarr = grid.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy()
     im = Image.fromarray(ndarr)
     return im
+
+
+def list_files_in_dir(dir):
+    list_dir = str(pathlib.Path(__file__).parent.absolute()) + '/listdir'
+    file_names = check_output([list_dir, dir])
+    fnames = file_names.decode().strip().split('\n')
+    return fnames
