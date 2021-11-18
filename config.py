@@ -8,7 +8,9 @@ from utils import str2bool
 
 def combine_dataset_arguments(args):
     data_config = {}
-    dataset_args = ['dataset_type', 'jpeg_aug', 'aug_prob']
+    dataset_args = ['dataset_type', 'jpeg_aug', 'aug_prob', 'val_dataset_type', \
+        'test_dataset_type', 'nb_train_datasets', 'datasets_probs', 'cache_dir', \
+        'raw_train_img_dir', 'raw_nb_train_datasets', 'raw_datasets_probs']
     for a in dataset_args:
         arg_value = getattr(args, a)
         if arg_value is not None:
@@ -43,7 +45,8 @@ def get_config():
     parser.add_argument('--d_norm_fun', type=str, default='none', help='BatchNorm|InstanceNorm|none')
 
     # Training configuration.
-    parser.add_argument('--pretrained_model', type=float, default=0.0)
+    parser.add_argument('--pretrained_model_epoch', type=int, default=None)
+    parser.add_argument('--pretrained_model_path', type=str, default=None)
     parser.add_argument('--total_epochs', type=int, default=100, help='total epochs to update the generator')
     parser.add_argument('--train_batch_size', type=int, default=10, help='mini batch size')
     parser.add_argument('--val_batch_size', type=int, default=1, help='mini batch size')
@@ -70,11 +73,19 @@ def get_config():
 
     # dataset configuration
     parser.add_argument('--dataset_type', type=str, help='data pre-processing pipeline type for creating model input')
+    parser.add_argument('--val_dataset_type', type=str, default='test', help='data pre-processing pipeline type for creating model input for validation')
+    parser.add_argument('--test_dataset_type', type=str, default='test', help='data pre-processing pipeline type for creating model input for testing')
+    parser.add_argument('--nb_train_datasets', type=int, default=1, help='specify number of different exp datasets for training')
+    parser.add_argument('--raw_nb_train_datasets', type=int, default=1, help='specify number of different raw datasets for training')
+    parser.add_argument('--datasets_probs', nargs="*", type=float, default=None, help='Probability of sampling different training datasets')
+    parser.add_argument('--raw_datasets_probs', nargs="*", type=float, default=None, help='Probability of sampling different training datasets')
+    parser.add_argument('--cache_dir', type=str, default=None, help="Directory to save list of file names of images")
     parser.add_argument('--jpeg_aug', nargs="*", type=float, help='min and max values for jpeg compression quality')
     parser.add_argument('--aug_prob', nargs="*", type=float, help='probs of applying augmentations in this order: "none", "jpg", "scale_up_down", "blur", \
                                             "jpg-scale_up_down", "jpg-blur", \
                                             "scale_up_down-blur", \
                                             "all"')
+    parser.add_argument('--raw_train_img_dir', type=str, default=None)
     #parser.add_argument('--jpeg_prob', type=float, help='prob of applying jpeg compression augmentation')
     #parser.add_argument('--scale_up_down_prob', type=float, help='prob of applying jpeg compression augmentation')
 
@@ -83,28 +94,32 @@ def get_config():
     parser.add_argument('--val_interval_rel_epoch', type=float, default=2.0, help='validate the model every time after training this fraction of the epoch')
 
     # Directories.
-    parser.add_argument('--train_img_dir', type=str, default='./data/fivek/train')
-    parser.add_argument('--val_img_dir', type=str, default='./data/fivek/val')
+    parser.add_argument('--train_img_dir', type=str, default=None)
+    parser.add_argument('--val_img_dir', type=str, default=None)
     parser.add_argument('--qual_img_dir', type=str)
-    parser.add_argument('--test_img_dir', type=str, default='./data/fivek/test')
+    parser.add_argument('--test_img_dir', type=str, default=None)
     parser.add_argument('--save_root_dir', type=str, default='./results')
-    parser.add_argument('--val_label_dir', type=str, default='./data/fivek/val/label/')
+    parser.add_argument('--val_label_dir', type=str, default=None)
     parser.add_argument('--qual_label_dir', type=str)
-    parser.add_argument('--test_label_dir', type=str, default='./data/fivek/test/label/')
+    parser.add_argument('--test_label_dir', type=str, default=None)
     parser.add_argument('--model_save_path', type=str, default='models')
     parser.add_argument('--sample_path', type=str, default='samples')
     parser.add_argument('--log_path', type=str, default='logs')
     parser.add_argument('--val_result_path', type=str, default='validation')
     parser.add_argument('--test_result_path', type=str, default='test')
+    parser.add_argument('--save_input', type=str2bool, default=False)
 
     # step size
     parser.add_argument('--log_step', type=int, default=100)
+    parser.add_argument('--img_log_step', type=int, default=20000)
     parser.add_argument('--info_step', type=int, default=100)
     parser.add_argument('--sample_step', type=int, default=100)
-    parser.add_argument('--model_save_epoch', type=int, default=1)
+    parser.add_argument('--model_save_interval', type=float, default=1, help='Fraction of epoch to save the checkpoint')
 
+    # parallel training mode
+    parser.add_argument('--local_rank', type=int, default=0, help='local rank for DDP training')
+    parser.add_argument('--parallel_mode', type=str, default="ddp", help='use ddp or data parallel for training')
     # Misc
-    parser.add_argument('--parallel', type=str2bool, default=False, help='use multi-GPU for training')
     parser.add_argument('--gpu_ids', nargs="*", default=[0, 1, 2, 3], type=int)
     parser.add_argument('--use_tensorboard', type=str, default=False)
     parser.add_argument('--is_print_network', type=str2bool, default=True)
