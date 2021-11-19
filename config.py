@@ -111,7 +111,7 @@ def get_config():
 
     # step size
     parser.add_argument('--log_step', type=int, default=100)
-    parser.add_argument('--img_log_step', type=int, default=20000)
+    parser.add_argument('--img_log_step', type=int, default=20000000000000)
     parser.add_argument('--info_step', type=int, default=100)
     parser.add_argument('--sample_step', type=int, default=100)
     parser.add_argument('--model_save_interval', type=float, default=1, help='Fraction of epoch to save the checkpoint')
