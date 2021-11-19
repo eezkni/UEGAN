@@ -117,8 +117,8 @@ class Logger(object):
 
 
 def create_folder(root_dir, path, version):
-        if not os.path.exists(os.path.join(root_dir, path, version)):
-            os.makedirs(os.path.join(root_dir, path, version))
+    if not os.path.exists(os.path.join(root_dir, path, version)):
+        os.makedirs(os.path.join(root_dir, path, version))
 
 
 def var2tensor(x):
@@ -155,7 +155,7 @@ def setup_seed(seed):
     random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.deterministic = True
+    #torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.enabled = True
 
 
@@ -223,6 +223,10 @@ def gray_scale(image):
 
     gray_image = torch.unsqueeze(image[:, 0] * 0.299 + image[:, 1] * 0.587 + image[:, 2] * 0.114, 1)
 
+    return gray_image
+
+def tensor_bgr_to_gray_scale(img):
+    gray_image = img[:, 0]*0.114 + img[:, 1]*0.299 + img[:, 2]*0.587
     return gray_image
 
 
