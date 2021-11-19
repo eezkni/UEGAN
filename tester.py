@@ -43,7 +43,7 @@ class Tester(object):
 
     def test(self):
         """ Test UEGAN ."""
-        self.load_pretrained_model(self.args.pretrained_model_epoch)
+        self.load_pretrained_model(self.args.pretrained_model_path)
         start_time = time.time()
         test_start = 0
         test_total_steps = len(self.loaders.tes)
@@ -76,7 +76,7 @@ class Tester(object):
                     save_imgs = denorm(test_fake_exp.data)[i:i + 1,:,:,:]
 
                     img_filename = os.path.basename(test_name[i]).split('.')[0]
-                    save_path = os.path.join(test_save_path, '{:s}_{:0>3.2f}_testFakeExp.png'.format(img_filename, self.args.pretrained_model_epoch))
+                    save_path = os.path.join(test_save_path, '{:s}.png'.format(img_filename))
                     save_image(save_imgs, save_path)
                     if self.args.save_input:
                         label_save_img = denorm(test_real_label.data)[i:i + 1,:,:,:]
@@ -155,12 +155,19 @@ class Tester(object):
         print("=== The number of parameters of the above model [{}] is [{}] or [{:>.4f}M] ===".format(name, num_params, num_params / 1e6))
 
 
-    def load_pretrained_model(self, resume_epochs):
-        checkpoint_path = os.path.join(self.model_save_path, '{}_{}_{}.pth'.format(self.args.version, self.args.adv_loss_type, resume_epochs))
+    def load_pretrained_model(self, checkpoint_path):
         if torch.cuda.is_available():
             # save on GPU, load on GPU
             checkpoint = torch.load(checkpoint_path)
-            self.G.load_state_dict(checkpoint['G_net'])
+            try:
+                self.G.load_state_dict(checkpoint['G_net'])
+            except RuntimeError:
+                G_state_dict = {}
+                for key, value in checkpoint['G_net'].items():
+                    # remove "module."
+                    key = key[7:]
+                    G_state_dict[key] = value
+                self.G.load_state_dict(G_state_dict)
             #self.D.load_state_dict(checkpoint['D_net'])
         else:
             # save on GPU, load on CPU
@@ -168,7 +175,7 @@ class Tester(object):
             self.G.load_state_dict(checkpoint['G_net'])
             #self.D.load_state_dict(checkpoint['D_net'])
 
-        print("=========== loaded trained models (epochs: {})! ===========".format(resume_epochs))
+        print("=========== loaded trained models (epochs: {})! ===========".format(checkpoint_path))
 
 
     def build_tensorboard(self):
