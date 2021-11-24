@@ -82,7 +82,8 @@ def main(args):
                                             img_size=args.test_img_size,
                                             batch_size=args.val_batch_size,
                                             shuffle=True,
-                                            num_workers=args.num_workers))
+                                            num_workers=args.num_workers,
+                                            parallel_mode=args.parallel_mode))
         tester = Tester(loaders, args)
         tester.test()
     else:

@@ -541,7 +541,8 @@ def get_train_loader(root, config, img_size=512, \
     return data_loader, sampler
 
 
-def get_test_loader(root, config, dataset_type=None, label_root=None, img_size=512, batch_size=8, shuffle=False, num_workers=4):
+def get_test_loader(root, config, dataset_type=None, label_root=None, \
+    img_size=512, batch_size=8, shuffle=False, num_workers=4, parallel_mode="non_ddp"):
 
     if dataset_type is None or dataset_type == "test":
         D = TestDataset
@@ -551,11 +552,21 @@ def get_test_loader(root, config, dataset_type=None, label_root=None, img_size=5
         raise NotImplementedError("Unrecoganized dataset type!")
 
     dataset = D(root, label_root=label_root, config=config)
+
+    sampler = None
+    if parallel_mode == "ddp":
+        world_size = torch.distributed.get_world_size()
+        assert batch_size % world_size == 0
+        batch_size = batch_size // world_size
+        shuffle = False
+        sampler = torch.utils.data.distributed.DistributedSampler(dataset)
+
     return data.DataLoader(dataset=dataset,
                            batch_size=batch_size,
                            shuffle=shuffle,
                            num_workers=num_workers,
-                           pin_memory=True)
+                           pin_memory=True,
+                           sampler=sampler)
 
 
 class InputFetcher:
