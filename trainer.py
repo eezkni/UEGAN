@@ -5,6 +5,7 @@ import os
 import time
 import torch
 import datetime
+from torch.autograd.grad_mode import enable_grad
 import torch.nn as nn
 from torchvision.utils import save_image, make_grid
 from losses import PerceptualLoss, GANLoss, MultiscaleRecLoss
@@ -27,6 +28,7 @@ class Trainer(object):
         self.args = args
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.parallel_mode = self.args.parallel_mode
+        self.fp16 = self.args.fp16
 
         self.rank = -1
         if self.parallel_mode == "ddp":
@@ -111,6 +113,9 @@ class Trainer(object):
         self.val_each_steps = int(self.args.val_interval_rel_epoch * self.train_steps_per_epoch)
         self.model_save_step = int(self.args.model_save_interval * self.train_steps_per_epoch)
 
+        if self.fp16:
+            scaler = torch.cuda.amp.GradScaler()
+
         if self.is_main_process():
             print("=========== start to iteratively train generator and discriminator ===========")
             pbar = tqdm(total=total_steps, desc='Train epoches', initial=start_step)
@@ -140,15 +145,24 @@ class Trainer(object):
                 p.requires_grad = True
 
             self.d_optimizer.zero_grad()
-            real_exp_preds = self.D(self.real_exp)
-            fake_exp_preds = self.D(self.fake_exp_store.detach())
-            d_loss = self.criterionGAN(real_exp_preds, fake_exp_preds, None, None, for_discriminator=True)
-            if self.args.adv_input:
-                input_preds = self.D(self.real_raw)
-                d_loss += self.criterionGAN(real_exp_preds, input_preds, None, None, for_discriminator=True)
-            d_loss.backward()
-            self.d_optimizer.step()
-            self.d_loss = d_loss.item()
+            with torch.cuda.amp.autocast(enabled=self.fp16):
+                real_exp_preds = self.D(self.real_exp)
+                fake_exp_preds = self.D(self.fake_exp_store.detach())
+                d_loss = self.criterionGAN(real_exp_preds, fake_exp_preds, None, None, for_discriminator=True)
+                if self.args.adv_input:
+                    input_preds = self.D(self.real_raw)
+                    d_loss += self.criterionGAN(real_exp_preds, input_preds, None, None, for_discriminator=True)
+
+            self.d_loss_log = d_loss.item()
+            # if self.is_main_process():
+            #     print(step, " D loss: ", self.d_loss_log)
+            if self.fp16:
+                scaler.scale(d_loss).backward()
+                scaler.step(self.d_optimizer)
+                scaler.update()
+            else:
+                d_loss.backward()
+                self.d_optimizer.step()
 
             # calculate accuracy of D
             self.d_real_acc_proxy = 0.
@@ -168,37 +182,62 @@ class Trainer(object):
                 p.requires_grad = False
 
             self.g_optimizer.zero_grad()
-            real_exp_preds = self.D(self.real_exp)
-            fake_exp_preds = self.D(self.fake_exp)
-            g_adv_loss = self.args.lambda_adv * self.criterionGAN(real_exp_preds, fake_exp_preds, None, None, for_discriminator=False)
-            self.g_adv_loss = g_adv_loss.item()
-            g_loss = g_adv_loss
+            with torch.cuda.amp.autocast(enabled=self.fp16):
+                real_exp_preds = self.D(self.real_exp)
+                fake_exp_preds = self.D(self.fake_exp)
+                g_adv_loss = self.args.lambda_adv * self.criterionGAN(real_exp_preds, fake_exp_preds, None, None, for_discriminator=False)
 
-            if self.args.black_n_white_loss:
-                fake_denom = (self.fake_exp+1.)/2.
-                fake_grayscale = tensor_bgr_to_gray_scale(fake_denom)
+                self.g_adv_loss_log = g_adv_loss.item()
+                # if self.is_main_process():
+                #     print(step, " g_adv_loss_log: ", self.g_adv_loss_log)
 
-                orig_denom = (self.orig_raw+1.)/2.
-                orig_grayscale = tensor_bgr_to_gray_scale(orig_denom)
+                g_loss = g_adv_loss
 
-                g_percep_loss = self.args.lambda_percep * self.criterionPercep(fake_grayscale, orig_grayscale)
+                with torch.cuda.amp.autocast(enabled=False):
+                    # VGG expects fp32
+                    if self.args.black_n_white_loss:
+                        fake_denom = (self.fake_exp+1.)/2.
+                        fake_grayscale = tensor_bgr_to_gray_scale(fake_denom)
+
+                        orig_denom = (self.orig_raw+1.)/2.
+                        orig_grayscale = tensor_bgr_to_gray_scale(orig_denom)
+
+                        g_percep_loss = self.args.lambda_percep * self.criterionPercep(fake_grayscale, orig_grayscale)
+                    else:
+                        # FIXME: remove it
+                        # fake_exp_type = self.fake_exp.type()
+                        # orig_raw_type = self.orig_raw.type()
+                        # from debugpy_util import debug
+                        # debug(address="10.37.192.4:5678")
+                        # g_precep_loss_type = g_percep_loss.type()
+                        g_percep_loss = self.args.lambda_percep * self.criterionPercep((self.fake_exp+1.)/2., (self.orig_raw+1.)/2.)
+
+                    if self.args.parallel_mode.lower() == "dataparallel":
+                        g_percep_loss = g_percep_loss.mean()
+
+                self.g_percep_loss_log = g_percep_loss.item()
+                # if self.is_main_process():
+                #     print(step, " g_percep_loss_log: ", self.g_percep_loss_log)
+                g_loss += g_percep_loss
+
+                self.real_exp_idt = self.G(self.real_exp)
+                g_idt_loss = self.args.lambda_idt * self.criterionIdt(self.real_exp_idt, self.real_exp)
+                self.g_idt_loss_log = g_idt_loss.item()
+                # if self.is_main_process():
+                #     print(step, " g_idt_loss: ", self.g_idt_loss_log)
+                g_loss += g_idt_loss
+
+            self.g_loss_log = g_loss.item()
+            # if self.is_main_process():
+            #     print(step, " g_loss_log: ", self.g_loss_log)
+
+            if self.fp16:
+                scaler.scale(g_loss).backward()
+                scaler.step(self.g_optimizer)
+                scaler.update()
             else:
-                g_percep_loss = self.args.lambda_percep * self.criterionPercep((self.fake_exp+1.)/2., (self.orig_raw+1.)/2.)
-
-            if self.args.parallel_mode.lower() == "dataparallel":
-                g_percep_loss = g_percep_loss.mean()
-
-            self.g_percep_loss = g_percep_loss.item()
-            g_loss += g_percep_loss
-
-            self.real_exp_idt = self.G(self.real_exp)
-            g_idt_loss = self.args.lambda_idt * self.criterionIdt(self.real_exp_idt, self.real_exp)
-            self.g_idt_loss = g_idt_loss.item()
-            g_loss += g_idt_loss
-
-            g_loss.backward()
-            self.g_optimizer.step()
-            self.g_loss = g_loss.item()
+                g_loss.backward()
+                self.g_optimizer.step()
 
             self.lr_G = self.g_optimizer.param_groups[0]['lr']
             self.lr_D = self.d_optimizer.param_groups[0]['lr']
@@ -211,8 +250,9 @@ class Trainer(object):
                 self.logging(step)
 
                 ### validation
-                self.model_validation(step, self.fetcher_val, len(self.loaders.val))
-                self.model_validation(step, self.fetcher_quality, len(self.loaders.qual_set), save_imgs=True, cal_metrics=False)
+                with torch.cuda.amp.autocast(enabled=self.fp16):
+                    self.model_validation(step, self.fetcher_val, len(self.loaders.val))
+                    self.model_validation(step, self.fetcher_quality, len(self.loaders.qual_set), save_imgs=True, cal_metrics=False)
 
             ### learning rate update
             ### learning rate update
@@ -236,7 +276,8 @@ class Trainer(object):
                 pbar.set_description(f"Train epoch %.2f" % ((step+1.0)/self.train_steps_per_epoch))
 
         if self.is_main_process():
-            self.val_best_results()
+            with torch.cuda.amp.autocast(enabled=self.fp16):
+                self.val_best_results()
 
             pbar.write("=========== Complete training ===========")
             pbar.close()
@@ -248,11 +289,11 @@ class Trainer(object):
 
     def logging(self, step):
         self.count_until_log += 1
-        self.loss['D/Total'] += self.d_loss
-        self.loss['G/Total'] += self.g_loss
-        self.loss['G/adv_loss'] += self.g_adv_loss
-        self.loss['G/percep_loss'] += self.g_percep_loss
-        self.loss['G/idt_loss'] += self.g_idt_loss
+        self.loss['D/Total'] += self.d_loss_log
+        self.loss['G/Total'] += self.g_loss_log
+        self.loss['G/adv_loss'] += self.g_adv_loss_log
+        self.loss['G/percep_loss'] += self.g_percep_loss_log
+        self.loss['G/idt_loss'] += self.g_idt_loss_log
 
         self.d_metric['D/real'] += self.d_real_acc_proxy
         self.d_metric['D/fake'] += self.d_fake_acc_proxy
@@ -299,7 +340,7 @@ class Trainer(object):
         if (step + 1) % self.args.info_step == 0:
             elapsed_num = time.time() - self.start_time
             elapsed = str(datetime.timedelta(seconds=elapsed_num))
-            pbar.write("Elapse:{:>.12s}, D_Step:{:>6d}/{}, G_Step:{:>6d}/{}, D_loss:{:>.4f}, G_loss:{:>.4f}, G_percep_loss:{:>.4f}, G_adv_loss:{:>.4f}, G_idt_loss:{:>.4f}".format(elapsed, step + 1, total_steps, (step + 1), total_steps, self.d_loss, self.g_loss, self.g_percep_loss, self.g_adv_loss, self.g_idt_loss))
+            pbar.write("Elapse:{:>.12s}, D_Step:{:>6d}/{}, G_Step:{:>6d}/{}, D_loss:{:>.4f}, G_loss:{:>.4f}, G_percep_loss:{:>.4f}, G_adv_loss:{:>.4f}, G_idt_loss:{:>.4f}".format(elapsed, step + 1, total_steps, (step + 1), total_steps, self.d_loss_log, self.g_loss_log, self.g_percep_loss_log, self.g_adv_loss_log, self.g_idt_loss_log))
 
         # sample images
         if (step + 1) % self.args.sample_step == 0:

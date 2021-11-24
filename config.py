@@ -70,6 +70,7 @@ def get_config():
     parser.add_argument('--idt_loss_type', type=str, default='l1', help='identity_loss: l1|l2|smoothl1 ')
     parser.add_argument('--idt_loss_wts', nargs="*", type=float, default= [1.0, 1.0/2, 1.0/4], help='identity_loss: l1|l2|smoothl1 ')
     parser.add_argument('--pool_size', type=int, default=50, help='the size of image buffer, pool_size=0 means no buffer')
+    parser.add_argument('--fp16', type=str2bool, default=False, help='Train with fp16')
 
     # dataset configuration
     parser.add_argument('--dataset_type', type=str, help='data pre-processing pipeline type for creating model input')
