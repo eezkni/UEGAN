@@ -38,7 +38,7 @@ cd UEGAN
 ```
 
 ## Preparing Data for the MIT-Adobe FiveK Dataset
-You can follow the instructions below to generate your own training images. Or, you can directly download our exported images [FiveK_dataset_nzk](https://drive.google.com/drive/folders/1Jv0_9CnYxh_2ReFaVrwG19O3F7xBtdZT?usp=sharing). (~6GB)
+You can follow the instructions below to generate your own training images. Or, you can directly download our exported images [FiveK_dataset_nzk](https://drive.google.com/drive/folders/1x-DcqFVoxprzM4KYGl8SUif8sV-57FP3?usp=sharing). (~6GB)
 
 ### Getting the MIT-Adobe FiveK Dataset
  - Download the dataset from https://data.csail.mit.edu/graphics/fivek/. (~50GB, SHA1)
@@ -67,7 +67,7 @@ You can follow the instructions below to generate your own training images. Or, 
 
 
 ## Testing
-Having trained your models or the [pre-trained model on MIT-Adobe FiveK Dataset](https://drive.google.com/file/d/1BVZuP5iMqqrULmanACcCWLJc1X66VorD/view?usp=sharing) (put into ```./results/UEGAN-FiveK/models/```), to test the pre-trained UEGAN on FiveK, run the test script below.
+Having trained your models or the [pre-trained model on MIT-Adobe FiveK Dataset](https://drive.google.com/file/d/1lBQOx-2YBEYemrPW-AtFZPv7MmdNEwRe/view?usp=sharing) (put into ```./results/UEGAN-FiveK/models/```), to test the pre-trained UEGAN on FiveK, run the test script below.
 ```
 python main.py --mode test --version UEGAN-FiveK --pretrained_model 92 --is_test_nima True --is_test_psnr_ssim True
 ```
