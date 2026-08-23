@@ -115,6 +115,74 @@ data
 			├──── d1.png                  
 			└──── ......
 ```
+<details>
+  <summary> Dataset Structure (click to expand) </summary>
+
+    data_path
+    ├── HDRTV4KSence
+    │   ├── train_scene_hdr
+    │   │   ├── abp1_autumnwoods
+    │   |   |   ├── 000.png
+    │   |   |   ├── 001.png
+    │   |   |   ├── 002.png
+    │   |   |   ...
+    │   |   |   └── 009.png
+    │   |   ├── abp1_bamboo
+    │   |   ...
+    │   |   └── ugc2_sunroom
+    │   ├── train_scene_sdr
+    │   │   ├── abp1_autumnwoods
+    │   |   |   ├── 000.png
+    │   |   |   ├── 001.png
+    │   |   |   ├── 002.png
+    │   |   |   ...
+    │   |   |   └── 009.png
+    │   |   ├── abp1_bamboo
+    │   |   ...
+    │   |   └── ugc2_sunroom
+    │   ├── test_scene_hdr
+    │   │   ├── abp1_dancinggirl
+    │   |   |   ├── 000.png
+    │   |   |   ├── 001.png
+    │   |   |   ├── 002.png
+    │   |   |   ...
+    │   |   |   └── 009.png
+    │   |   ├── abp1_factoryout1
+    │   |   ...
+    │   |   └── ugc2_sculpture
+    │   └── test_scene_sdr
+    │       ├── abp1_dancinggirl
+    │       |   ├── 000.png
+    │       |   ├── 001.png
+    │       |   ├── 002.png
+    │       |   ...
+    │       |   └── 009.png
+    │       ├── abp1_factoryout1
+    │       ...
+    │       └── ugc2_sculpture
+    └── HDRTV4KLong
+        ├── test_video_scene_hdr
+        │   ├── scene01
+        |   |   ├── 01.png
+        |   |   ├── 02.png
+        |   |   ├── 03.png
+        |   |   ...
+        |   |   └── 30.png
+        |   ├── scene02
+        |   ...
+        |   └── scene10
+        └── test_video_scene_sdr
+            ├── scene01
+            |   ├── 01.png
+            |   ├── 02.png
+            |   ├── 03.png
+            |   ...
+            |   └── 30.png
+            ├── scene02
+            ...
+            └── scene10
+
+</details>
 ```raw/```contains low-quality images, ```exp/``` contains unpaired high-quality images, and ```label/``` contains corresponding ground truth.
 
 To train UEGAN on FiveK, run the training script below.
