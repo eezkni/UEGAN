@@ -124,34 +124,28 @@ data
 				│   ├── exp
 				|   |   ├── a1.png
 				|   |   ├── a2.png
-				|   |   ├── a3.png
 				|   |   ...
 				|   └── raw
 				|       ├── b1.png
 				|       ├── b2.png
-				|       ├── b3.png
 				|       ...
 				├── val
 				│   ├── label
 				|   |   ├── c1.png
 				|   |   ├── c2.png
-				|   |   ├── c3.png
 				|   |   ...
 				|   └── raw
 				|       ├── c1.png
 				|       ├── c2.png
-				|       ├── c3.png
 				|       ...
 				└── test
 					├── label
 					|   ├── d1.png
 					|   ├── d2.png
-					|   ├── d3.png
 					|   ...
 					└── raw
 						├── d1.png
 						├── d2.png
-						└── d3.png
 						...
 
 </details>
