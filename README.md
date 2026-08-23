@@ -26,7 +26,7 @@ IEEE Transactions on Image Processing (TIP), 2025
 
 <!-- ## Introdcurion -->
 
-This website shares the Pytorch codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network", IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. 
+This website shares the Pytorch codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network," IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. 
 
 <div align=center><img src="./figures/examples.PNG" width = "100%" height = "100%" /></div>
 <!-- <div align=center><img src="./figures/examples.PNG" width = "800" /></div> -->
