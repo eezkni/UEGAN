@@ -116,30 +116,30 @@ data
 			└──── ......
 ``` -->
 <details>
-  <summary> Dataset Structure (click to expand) </summary>
-data
-└── fiveK
-    ├── train
-    │   ├── exp
-    │   │   ├── a1.png
-    │   │   └── ...
-    │   └── raw
-    │       ├── b1.png
-    │       └── ...
-    ├── val
-    │   ├── label
-    │   │   ├── c1.png
-    │   │   └── ...
-    │   └── raw
-    │       ├── c1.png
-    │       └── ...
-    └── test
-        ├── label
-        │   ├── d1.png
-        │   └── ...
-        └── raw
-            ├── d1.png
-            └── ...
+  <summary> Dataset Structure1 (click to expand) </summary>
+	data
+	└── fiveK
+		├── train
+		│   ├── exp
+		│   │   ├── a1.png
+		│   │   └── ...
+		│   └── raw
+		│       ├── b1.png
+		│       └── ...
+		├── val
+		│   ├── label
+		│   │   ├── c1.png
+		│   │   └── ...
+		│   └── raw
+		│       ├── c1.png
+		│       └── ...
+		└── test
+			├── label
+			│   ├── d1.png
+			│   └── ...
+			└── raw
+				├── d1.png
+				└── ...
     
 </details>
 ```raw/```contains low-quality images, ```exp/``` contains unpaired high-quality images, and ```label/``` contains corresponding ground truth.
