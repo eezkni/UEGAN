@@ -118,14 +118,14 @@ data
 <details>
   <summary> Dataset Structure (click to expand) </summary>
     data
-└─── fiveK
-	├─── train
-	|	├─── exp
-	|	|	├──── a1.png                  
-	|	|	└──── ......
-	|	└─── raw
-	|		├──── b1.png                  
-	|		└──── ......
+	└─── fiveK
+		├─── train
+		|	├─── exp
+		|	├──── a1.png                  
+		|	└──── ......
+		└─── raw
+			├──── b1.png                  
+			└──── ......
 	├─── val
 	|	├─── label
 	|	|	├──── c1.png                  
