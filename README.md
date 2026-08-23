@@ -119,39 +119,39 @@ data
   <summary> Dataset Structure (click to expand) </summary>
 
     data_path
-    ├── fiveK
-    │   ├── train
-    │   │   ├── exp
-    │   |   |   ├── a1.png
-    │   |   |   ├── a2.png
-    │   |   |   ├── a3.png
-    │   |   |   ...
-    │   |   ├── raw
-	│   |   |   ├── b1.png
-	│   |   |   ├── b2.png
-	│   |   |   ├── b3.png
-    │   |   |.  ...
-    │   ├── val
-    │   │   ├── label
-    │   |   |   ├── c1.png
-    │   |   |   ├── c2.png
-    │   |   |   ├── c3.png
-    │   |   |   ...
-    │   |   ├── raw
-    │   |   |   ├── c1.png
-    │   |   |   ├── c2.png
-    │   |   |   ├── c3.png
-    │   |   |   ...
-    │── ├── test
+     └── fiveK
+        ├── train
+        │   ├── exp
+        |   |   ├── a1.png
+        |   |   ├── a2.png
+        |   |   ├── a3.png
+        |   |   ...
+        |   ├── raw
+	    |   |   ├── b1.png
+	    |   |   ├── b2.png
+	    |   |   ├── b3.png
+        |   |.  ...
+        ├── val
+        │   ├── label
+        |   |   ├── c1.png
+        |   |   ├── c2.png
+        |   |   ├── c3.png
+        |   |   ...
+        |   ├── raw
+        |   |   ├── c1.png
+        |   |   ├── c2.png
+        |   |   ├── c3.png
+        |   |   ...
+        └── test
             ├── label
             |   ├── d1.png
             |   ├── d2.png
             |   ├── d3.png
             |   ...
-            ├── raw
+            └── raw
                 ├── d1.png
                 ├── d2.png
-                ├── d3.png
+                └── d3.png
 	            ...
 
 </details>
