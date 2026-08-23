@@ -6,8 +6,6 @@
 
 [Zhangkai Ni](https://eezkni.github.io/)<sup>1</sup>, [Wenhan Yang](https://scholar.google.com/citations?user=S8nAnakAAAAJ&hl=en)<sup>1</sup>, [Shiqi Wang](https://www.cs.cityu.edu.hk/~shiqwang/)<sup>1</sup>, [Lin Ma](http://forestlinma.com/)<sup>2</sup>, [Sam Kwong](https://scholar.google.com/citations?user=_PVI6EAAAAAJ&hl=zh-CN)<sup>1</sup>
 
-[Paper-official](https://ieeexplore.ieee.org/document/9204448) | [Paper-arXiv](https://arxiv.org/abs/2012.15020)
-
 <sup>1</sup>City University of Hong Kong, <sup>2</sup>Meituan Group
 
 IEEE Transactions on Image Processing (TIP), 2025
@@ -26,7 +24,7 @@ IEEE Transactions on Image Processing (TIP), 2025
 
 <!-- ## Introdcurion -->
 
-This website shares the Pytorch codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network," IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. 
+This website shares the Pytorch codes of the "Towards Unsupervised Deep Image Enhancement with Generative Adversarial Network," IEEE Transactions on Image Processing (T-IP), vol. 29, pp. 9140-9151, September 2020. [Paper-official](https://ieeexplore.ieee.org/document/9204448) | [Paper-arXiv](https://arxiv.org/abs/2012.15020)
 
 <div align=center><img src="./figures/examples.PNG" width = "100%" height = "100%" /></div>
 <!-- <div align=center><img src="./figures/examples.PNG" width = "800" /></div> -->
