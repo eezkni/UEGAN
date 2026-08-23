@@ -119,18 +119,19 @@ data
   <summary> Dataset Structure (click to expand) </summary>
 
     data_path
-    ├── HDRTV4KSence
-    │   ├── train_scene_hdr
-    │   │   ├── abp1_autumnwoods
-    │   |   |   ├── 000.png
-    │   |   |   ├── 001.png
-    │   |   |   ├── 002.png
+    ├── fiveK
+    │   ├── train
+    │   │   ├── exp
+    │   |   |   ├── a1.png
+    │   |   |   ├── a2.png
+    │   |   |   ├── a3.png
     │   |   |   ...
-    │   |   |   └── 009.png
-    │   |   ├── abp1_bamboo
+    │   |   ├── raw
+	│   |   |   ├── b1.png
+	│   |   |   ├── b2.png
+	│   |   |   ├── b3.png
     │   |   ...
-    │   |   └── ugc2_sunroom
-    │   ├── train_scene_sdr
+    │   ├── val
     │   │   ├── abp1_autumnwoods
     │   |   |   ├── 000.png
     │   |   |   ├── 001.png
