@@ -130,58 +130,29 @@ data
 	│   |   |   ├── b1.png
 	│   |   |   ├── b2.png
 	│   |   |   ├── b3.png
-    │   |   ...
+    │   |   |.  ...
     │   ├── val
-    │   │   ├── abp1_autumnwoods
-    │   |   |   ├── 000.png
-    │   |   |   ├── 001.png
-    │   |   |   ├── 002.png
+    │   │   ├── label
+    │   |   |   ├── c1.png
+    │   |   |   ├── c2.png
+    │   |   |   ├── c3.png
     │   |   |   ...
-    │   |   |   └── 009.png
-    │   |   ├── abp1_bamboo
-    │   |   ...
-    │   |   └── ugc2_sunroom
-    │   ├── test_scene_hdr
-    │   │   ├── abp1_dancinggirl
-    │   |   |   ├── 000.png
-    │   |   |   ├── 001.png
-    │   |   |   ├── 002.png
+    │   |   ├── raw
+    │   |   |   ├── c1.png
+    │   |   |   ├── c2.png
+    │   |   |   ├── c3.png
     │   |   |   ...
-    │   |   |   └── 009.png
-    │   |   ├── abp1_factoryout1
-    │   |   ...
-    │   |   └── ugc2_sculpture
-    │   └── test_scene_sdr
-    │       ├── abp1_dancinggirl
-    │       |   ├── 000.png
-    │       |   ├── 001.png
-    │       |   ├── 002.png
-    │       |   ...
-    │       |   └── 009.png
-    │       ├── abp1_factoryout1
-    │       ...
-    │       └── ugc2_sculpture
-    └── HDRTV4KLong
-        ├── test_video_scene_hdr
-        │   ├── scene01
-        |   |   ├── 01.png
-        |   |   ├── 02.png
-        |   |   ├── 03.png
-        |   |   ...
-        |   |   └── 30.png
-        |   ├── scene02
-        |   ...
-        |   └── scene10
-        └── test_video_scene_sdr
-            ├── scene01
-            |   ├── 01.png
-            |   ├── 02.png
-            |   ├── 03.png
+    │── ├── test
+            ├── label
+            |   ├── d1.png
+            |   ├── d2.png
+            |   ├── d3.png
             |   ...
-            |   └── 30.png
-            ├── scene02
-            ...
-            └── scene10
+            ├── raw
+                ├── d1.png
+                ├── d2.png
+                ├── d3.png
+	            ...
 
 </details>
 ```raw/```contains low-quality images, ```exp/``` contains unpaired high-quality images, and ```label/``` contains corresponding ground truth.
