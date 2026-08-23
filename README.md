@@ -4,7 +4,7 @@
 
 <h4 align="center"> 
 
-[Zhangkai Ni](https://eezkni.github.io/)<sup>1</sup>, [Wenhan Yang](https://scholar.google.com/citations?user=S8nAnakAAAAJ&hl=en)<sup>1</sup>, [Shiqi Wang](https://www.cs.cityu.edu.hk/~shiqwang/)<sup>1</sup>, [Lin Ma](http://forestlinma.com/)<sup>2</sup>, [Sam Kwong](https://scholar.google.com/citations?user=_PVI6EAAAAAJ&hl=zh-CN)<sup>1</sup>
+[Zhangkai Ni](https://eezkni.github.io/)<sup>1</sup>, [Wenhan Yang](https://scholar.google.com/citations?user=S8nAnakAAAAJ&hl=en)<sup>1</sup>, [Shiqi Wang](https://scholar.google.com/citations?user=Pr7s2VUAAAAJ&hl=en)<sup>1</sup>, [Lin Ma](https://scholar.google.com/citations?user=DAn1pA4AAAAJ&hl=en)<sup>2</sup>, [Sam Kwong](https://scholar.google.com/citations?user=_PVI6EAAAAAJ&hl=en)<sup>1</sup>
 
 <sup>1</sup>City University of Hong Kong, <sup>2</sup>Meituan Group
 
