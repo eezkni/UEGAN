@@ -90,34 +90,6 @@ python main.py --mode test --version UEGAN-FiveK --pretrained_model 92 --is_test
 
 ## Training
 Prepare the training, testing, and validation data. The folder structure should be:
-<details>
-  <summary> (click to expand;) </summary>
-
-    data
-└─── fiveK
-	├─── train
-	|	├─── exp
-	|	|	├──── a1.png                  
-	|	|	└──── ......
-	|	└─── raw
-	|		├──── b1.png                  
-	|		└──── ......
-	├─── val
-	|	├─── label
-	|	|	├──── c1.png                  
-	|	|	└──── ......
-	|	└─── raw
-	|		├──── c1.png                  
-	|		└──── ......
-	└─── test
-		├─── label
-		| 	├──── d1.png                  
-		| 	└──── ......
-		└─── raw
-			├──── d1.png                  
-			└──── ......
-
-</details>
 ```
 data
 └─── fiveK
